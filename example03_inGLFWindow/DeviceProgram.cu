@@ -2,13 +2,11 @@
 
 #include "Params.h"
 
-/*! launch parameters in constant memory, filled in by optix upon
-      optixLaunch (this gets filled in from the buffer we pass to
-      optixLaunch) */
-
-__constant__ osc::LaunchParams OptixLaunchParams;
-
 namespace osc {
+
+extern "C" {
+  __constant__ osc::LaunchParams OptixLaunchParams;
+}
 
 //------------------------------------------------------------------------------
 // ray gen program - the actual rendering happens in here

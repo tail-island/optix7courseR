@@ -7,9 +7,11 @@
 
 #include "Params.h"
 
-__constant__ osc::LaunchParams OptixLaunchParams;
-
 namespace osc {
+
+extern "C" {
+  __constant__ osc::LaunchParams OptixLaunchParams;
+}
 
 enum { // TODO: enum classに書き換える。
   SURFACE_RAY_TYPE = 0,
