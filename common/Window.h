@@ -17,10 +17,10 @@ namespace common {
 
 class Window {
 protected:
-  GLFWwindow *Handle;
-
   int Width;
   int Height;
+
+  GLFWwindow *GLFWWindow;
 
 public:
   Window(const std::string &Title) noexcept : Width(0), Height(0) {
@@ -35,25 +35,25 @@ public:
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2); // 本当はOpenGL4.xにしたいのですけど、そうするとglDrawPixelsで描画できません。
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); // そもそもglDrawPixelsみたいな遅いのを使うな、CUDAで作った画像をホスト・メモリ経由で表示するのは無駄だと言われたらぐうの音も出ないのですけど、とりあえずは無視で。
 
-    Handle = glfwCreateWindow(1200, 800, Title.c_str(), NULL, NULL);
-    if (!Handle) {
+    GLFWWindow = glfwCreateWindow(1200, 800, Title.c_str(), NULL, NULL);
+    if (!GLFWWindow) {
       std::exit(1);
     }
 
-    glfwSetWindowUserPointer(Handle, this);
-    glfwMakeContextCurrent(Handle);
+    glfwSetWindowUserPointer(GLFWWindow, this);
+    glfwMakeContextCurrent(GLFWWindow);
     glfwSwapInterval(1);
   }
 
   virtual ~Window() {
-    glfwDestroyWindow(Handle);
+    glfwDestroyWindow(GLFWWindow);
     glfwTerminate();
   }
 
   std::tuple<double, double> cursorPos() const noexcept {
     double X;
     double Y;
-    glfwGetCursorPos(Handle, &X, &Y);
+    glfwGetCursorPos(GLFWWindow, &X, &Y);
 
     return std::make_tuple(X, Y);
   }
@@ -75,10 +75,10 @@ public:
   virtual std::vector<std::uint32_t> render() noexcept = 0;
 
   auto run() noexcept {
-    glfwGetFramebufferSize(Handle, &Width, &Height);
+    glfwGetFramebufferSize(GLFWWindow, &Width, &Height);
     resize();
 
-    glfwSetFramebufferSizeCallback(Handle, [](GLFWwindow *GLFWWindow, int Width, int Height) {
+    glfwSetFramebufferSizeCallback(GLFWWindow, [](GLFWwindow *GLFWWindow, int Width, int Height) {
       auto Window = static_cast<common::Window *>(glfwGetWindowUserPointer(GLFWWindow));
 
       Window->Width = Width;
@@ -87,22 +87,22 @@ public:
       Window->resize();
     });
 
-    glfwSetKeyCallback(Handle, [](GLFWwindow *GLFWWindow, int Key, int Scancode, int Action, int Mods) {
+    glfwSetKeyCallback(GLFWWindow, [](GLFWwindow *GLFWWindow, int Key, int Scancode, int Action, int Mods) {
       static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->key(Key, Action, Mods);
     });
 
-    glfwSetMouseButtonCallback(Handle, [](GLFWwindow *GLFWWindow, int Button, int Action, int Mods) {
+    glfwSetMouseButtonCallback(GLFWWindow, [](GLFWwindow *GLFWWindow, int Button, int Action, int Mods) {
       static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->mouseButton(Button, Action, Mods);
     });
 
-    glfwSetCursorPosCallback(Handle, [](GLFWwindow *GLFWWindow, double X, double Y) {
+    glfwSetCursorPosCallback(GLFWWindow, [](GLFWwindow *GLFWWindow, double X, double Y) {
       static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->cursorPos(X, Y);
     });
 
-    while (!glfwWindowShouldClose(Handle)) {
+    while (!glfwWindowShouldClose(GLFWWindow)) {
       glDrawPixels(Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, render().data()); // TODO: glDrawPixelsを使うのをやめて、OpenGLのバージョンを上げる。
 
-      glfwSwapBuffers(Handle);
+      glfwSwapBuffers(GLFWWindow);
       glfwPollEvents();
     }
   }
@@ -110,9 +110,23 @@ public:
   class Camera final {
     Eigen::Vector3f From;
     Eigen::Vector3f Up;
+
     float PointOfInterestDistance;
 
+    bool Modified;
+
   public:
+    const auto& from() const noexcept {
+      return From;
+    }
+
+    auto At() const noexcept {
+      return 0;
+    }
+
+    const auto& up() const noexcept {
+      return Up;
+    }
   };
 
   inline auto createUVW(const Eigen::Vector3f &From, const Eigen::Vector3f &At, const Eigen::Vector3f &Up, float Fov, float AspectRatio) noexcept {
