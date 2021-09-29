@@ -13,7 +13,7 @@ public:
     ;
   }
 
-  void resize(int Width, int Height) noexcept {
+  void resize() noexcept {
     Renderer.resize(Width, Height);
   }
 

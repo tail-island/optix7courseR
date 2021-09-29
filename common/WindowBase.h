@@ -71,13 +71,13 @@ public:
     ;
   }
 
-  virtual void resize(int Width, int Height) noexcept = 0;
+  virtual void resize() noexcept = 0;
 
   virtual std::vector<std::uint32_t> render() noexcept = 0;
 
   auto run() noexcept {
     glfwGetFramebufferSize(Handle, &Width, &Height);
-    resize(Width, Height);
+    resize();
 
     glfwSetFramebufferSizeCallback(Handle, [](GLFWwindow *Window, int Width, int Height) {
       auto WindowBase = static_cast<osc::WindowBase *>(glfwGetWindowUserPointer(Window));
@@ -85,7 +85,7 @@ public:
       WindowBase->Width = Width;
       WindowBase->Height = Height;
 
-      WindowBase->resize(Width, Height);
+      WindowBase->resize();
     });
 
     glfwSetKeyCallback(Handle, [](GLFWwindow *Window, int Key, int Scancode, int Action, int Mods) {

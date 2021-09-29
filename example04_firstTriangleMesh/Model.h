@@ -14,8 +14,12 @@ class Model final {
   std::vector<Eigen::Vector3i> Indexes;
 
 public:
-  Model() noexcept : Vertexes{}, Indexes{} {
-    ;
+  const auto &vertexes() const noexcept {
+    return Vertexes;
+  }
+
+  const auto &indexes() const noexcept {
+    return Indexes;
   }
 
   auto addCube(const Eigen::Vector3f &Center, const Eigen::Vector3f &Size) noexcept {
@@ -46,16 +50,13 @@ public:
     const auto FirstVertexIndex = std::size(Vertexes);
     const auto Affine = Eigen::Translation<float, 3>(Center - Size * 0.5) * Eigen::Scaling(Size);
 
-    std::transform(std::begin(UnitCubeVertexes), std::end(UnitCubeVertexes), std::back_inserter(Vertexes), [&](const auto& UnitCubeVertex) { return Affine * UnitCubeVertex; });
-    std::transform(std::begin(UnitCubeIndexes), std::end(UnitCubeIndexes), std::back_inserter(Indexes), [&](const auto& UnitCubeIndex) { return FirstVertexIndex + UnitCubeIndex.array(); });
-  }
+    std::transform(std::begin(UnitCubeVertexes), std::end(UnitCubeVertexes), std::back_inserter(Vertexes), [&](const auto &UnitCubeVertex) {
+      return Affine * UnitCubeVertex;
+    });
 
-  const auto &vertexes() const noexcept {
-    return Vertexes;
-  }
-
-  const auto &indexes() const noexcept {
-    return Indexes;
+    std::transform(std::begin(UnitCubeIndexes), std::end(UnitCubeIndexes), std::back_inserter(Indexes), [&](const auto &UnitCubeIndex) {
+      return FirstVertexIndex + UnitCubeIndex.array();
+    });
   }
 };
 
