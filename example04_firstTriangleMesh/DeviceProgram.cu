@@ -11,7 +11,7 @@ __constant__ osc::LaunchParams OptixLaunchParams;
 
 namespace osc {
 
-enum {  // TODO: enum classに書き換える。
+enum { // TODO: enum classに書き換える。
   SURFACE_RAY_TYPE = 0,
   RAY_TYPE_COUNT
 };
