@@ -8,6 +8,7 @@
 #include "../common/util.h"
 
 namespace osc {
+namespace common {
 
 template <typename T>
 class DeviceVectorBuffer final {
@@ -76,4 +77,5 @@ public:
   }
 };
 
+} // namespace common
 } // namespace osc

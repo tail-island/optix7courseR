@@ -13,18 +13,17 @@
 #include <math.h>
 
 namespace osc {
+namespace common {
 
-class WindowBase {
+class Window {
 protected:
   GLFWwindow *Handle;
 
   int Width;
   int Height;
 
-  GLuint Texture;
-
 public:
-  WindowBase(const std::string &Title) noexcept : Width(0), Height(0), Texture(0) {
+  Window(const std::string &Title) noexcept : Width(0), Height(0) {
     glfwSetErrorCallback([](auto error, auto description) {
       std::cerr << "Error: " << description << "\n";
     });
@@ -34,7 +33,7 @@ public:
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2); // 本当はOpenGL4.xにしたいのですけど、そうするとglDrawPixelsで描画できません。
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); // そもそもglDrawPixelsみたいな遅いのを使うな、CUDAで作った画像をホスト・メモリ経由で表示するのはやめろと言われたらぐうの音も出ないのですけど、とりあえずは無視で。
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); // そもそもglDrawPixelsみたいな遅いのを使うな、CUDAで作った画像をホスト・メモリ経由で表示するのは無駄だと言われたらぐうの音も出ないのですけど、とりあえずは無視で。
 
     Handle = glfwCreateWindow(1200, 800, Title.c_str(), NULL, NULL);
     if (!Handle) {
@@ -46,7 +45,7 @@ public:
     glfwSwapInterval(1);
   }
 
-  virtual ~WindowBase() {
+  virtual ~Window() {
     glfwDestroyWindow(Handle);
     glfwTerminate();
   }
@@ -79,25 +78,25 @@ public:
     glfwGetFramebufferSize(Handle, &Width, &Height);
     resize();
 
-    glfwSetFramebufferSizeCallback(Handle, [](GLFWwindow *Window, int Width, int Height) {
-      auto WindowBase = static_cast<osc::WindowBase *>(glfwGetWindowUserPointer(Window));
+    glfwSetFramebufferSizeCallback(Handle, [](GLFWwindow *GLFWWindow, int Width, int Height) {
+      auto Window = static_cast<common::Window *>(glfwGetWindowUserPointer(GLFWWindow));
 
-      WindowBase->Width = Width;
-      WindowBase->Height = Height;
+      Window->Width = Width;
+      Window->Height = Height;
 
-      WindowBase->resize();
+      Window->resize();
     });
 
-    glfwSetKeyCallback(Handle, [](GLFWwindow *Window, int Key, int Scancode, int Action, int Mods) {
-      static_cast<WindowBase *>(glfwGetWindowUserPointer(Window))->key(Key, Action, Mods);
+    glfwSetKeyCallback(Handle, [](GLFWwindow *GLFWWindow, int Key, int Scancode, int Action, int Mods) {
+      static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->key(Key, Action, Mods);
     });
 
-    glfwSetMouseButtonCallback(Handle, [](GLFWwindow *Window, int Button, int Action, int Mods) {
-      static_cast<WindowBase *>(glfwGetWindowUserPointer(Window))->mouseButton(Button, Action, Mods);
+    glfwSetMouseButtonCallback(Handle, [](GLFWwindow *GLFWWindow, int Button, int Action, int Mods) {
+      static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->mouseButton(Button, Action, Mods);
     });
 
-    glfwSetCursorPosCallback(Handle, [](GLFWwindow *Window, double X, double Y) {
-      static_cast<WindowBase *>(glfwGetWindowUserPointer(Window))->cursorPos(X, Y);
+    glfwSetCursorPosCallback(Handle, [](GLFWwindow *GLFWWindow, double X, double Y) {
+      static_cast<Window *>(glfwGetWindowUserPointer(GLFWWindow))->cursorPos(X, Y);
     });
 
     while (!glfwWindowShouldClose(Handle)) {
@@ -108,15 +107,15 @@ public:
     }
   }
 
-  // class Camera final {
-  //   Eigen::Vector3f Position;
-  //   Eigen::Vector3f UpVector;
-  //   float PointOfInterestDistance;
+  class Camera final {
+    Eigen::Vector3f From;
+    Eigen::Vector3f Up;
+    float PointOfInterestDistance;
 
-  // public:
-  // }
+  public:
+  };
 
-  inline auto createUVW(const Eigen::Vector3f& From, const Eigen::Vector3f& At, const Eigen::Vector3f& Up, float Fov, float AspectRatio) noexcept {
+  inline auto createUVW(const Eigen::Vector3f &From, const Eigen::Vector3f &At, const Eigen::Vector3f &Up, float Fov, float AspectRatio) noexcept {
     auto W = At - From;
     auto U = W.cross(Up).normalized();
     auto V = U.cross(W).normalized();
@@ -131,4 +130,5 @@ public:
   }
 };
 
+} // namespace common
 } // namespace osc

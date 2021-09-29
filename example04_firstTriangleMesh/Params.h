@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include <optix.h>
 #include <Eigen/Core>
 
 namespace osc {

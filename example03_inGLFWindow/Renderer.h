@@ -18,8 +18,8 @@ class Renderer final {
   int Height;
   int FrameID;
 
-  DeviceVectorBuffer<std::uint32_t> ImageBuffer;
-  DeviceBuffer<LaunchParams> LaunchParamsBuffer;
+  common::DeviceVectorBuffer<std::uint32_t> ImageBuffer;
+  common::DeviceBuffer<LaunchParams> LaunchParamsBuffer;
 
 public:
   Renderer() noexcept : OptixState(0), Width(0), Height(0), FrameID(0), ImageBuffer(Width * Height), LaunchParamsBuffer() {

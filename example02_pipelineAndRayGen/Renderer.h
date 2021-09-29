@@ -21,8 +21,8 @@ class Renderer final {
   int Width;
   int Height;
 
-  DeviceVectorBuffer<std::uint32_t> ImageBuffer;
-  DeviceBuffer<LaunchParams> LaunchParamsBuffer;
+  common::DeviceVectorBuffer<std::uint32_t> ImageBuffer;
+  common::DeviceBuffer<LaunchParams> LaunchParamsBuffer;
 
 public:
   Renderer(const CUstream &Stream, const OptixPipeline &Pipeline, const OptixShaderBindingTable &ShaderBindingTable, int Width, int Height) noexcept : Stream(Stream), Pipeline(Pipeline), ShaderBindingTable(ShaderBindingTable), Width(Width), Height(Height), ImageBuffer(Width * Height), LaunchParamsBuffer() {

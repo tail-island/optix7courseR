@@ -8,6 +8,7 @@
 #include <optix.h>
 
 namespace osc {
+namespace common {
 
 #define CUDA_CHECK(call)                                                                                                            \
   {                                                                                                                                 \
@@ -38,4 +39,5 @@ inline auto optixLogCallback(unsigned int Level, const char *Tag, const char *Me
   std::cerr << "[" << Level << "][" << Tag << "]: " << Message << "\n";
 }
 
+} // namespace common
 } // namespace osc

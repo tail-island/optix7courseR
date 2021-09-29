@@ -5,6 +5,7 @@
 #include "../common/util.h"
 
 namespace osc {
+namespace common {
 
 template <typename T>
 class DeviceBuffer final {
@@ -60,4 +61,5 @@ public:
   }
 };
 
+} // namespace common
 } // namespace osc

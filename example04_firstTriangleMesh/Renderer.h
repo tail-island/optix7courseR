@@ -19,13 +19,13 @@ class Renderer final {
   int Width;
   int Height;
 
-  DeviceVectorBuffer<std::uint32_t> ImageBuffer;
-  DeviceBuffer<LaunchParams> LaunchParamsBuffer;
+  common::DeviceVectorBuffer<std::uint32_t> ImageBuffer;
+  common::DeviceBuffer<LaunchParams> LaunchParamsBuffer;
 
-  DeviceVectorBuffer<Eigen::Vector3f> VertexesBuffer;
-  DeviceVectorBuffer<Eigen::Vector3i> IndexesBuffer;
+  common::DeviceVectorBuffer<Eigen::Vector3f> VertexesBuffer;
+  common::DeviceVectorBuffer<Eigen::Vector3i> IndexesBuffer;
 
-  DeviceVectorBuffer<std::uint8_t> TraversableBuffer;
+  common::DeviceVectorBuffer<std::uint8_t> TraversableBuffer;
   OptixTraversableHandle TraversableHandle;
 
 public:
@@ -78,7 +78,7 @@ public:
       return Result;
     }();
 
-    const auto CompactedSizeBuffer = DeviceBuffer<std::uint64_t>();
+    const auto CompactedSizeBuffer = common::DeviceBuffer<std::uint64_t>();
 
     const auto AccelEmitDesc = [&] {
       auto Result = OptixAccelEmitDesc();
@@ -89,8 +89,8 @@ public:
       return Result;
     }();
 
-    const auto TempBuffer = DeviceVectorBuffer<std::uint8_t>(AccelBufferSizes.tempSizeInBytes);
-    const auto OutputBuffer = DeviceVectorBuffer<std::uint8_t>(AccelBufferSizes.outputSizeInBytes);
+    const auto TempBuffer = common::DeviceVectorBuffer<std::uint8_t>(AccelBufferSizes.tempSizeInBytes);
+    const auto OutputBuffer = common::DeviceVectorBuffer<std::uint8_t>(AccelBufferSizes.outputSizeInBytes);
 
     OPTIX_CHECK(optixAccelBuild(OptixState.deviceContext(), 0, &AccelBuildOptions, &BuildInput, 1, TempBuffer.data(), TempBuffer.dataSize(), OutputBuffer.data(), OutputBuffer.dataSize(), &TraversableHandle, &AccelEmitDesc, 1));
 

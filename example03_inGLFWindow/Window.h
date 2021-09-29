@@ -9,16 +9,16 @@
 #include <optix_function_table_definition.h>
 #include <optix_stubs.h>
 
-#include "../common/WindowBase.h"
+#include "../common/Window.h"
 #include "Renderer.h"
 
 namespace osc {
 
-class Window final : public WindowBase {
+class Window final : public common::Window {
   Renderer Renderer;
 
 public:
-  Window(const std::string &Title) : WindowBase(Title), Renderer() {
+  Window(const std::string &Title) : common::Window(Title), Renderer() {
     ;
   }
 

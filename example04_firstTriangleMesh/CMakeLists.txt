@@ -37,7 +37,7 @@ add_executable(${TARGET}
     ../common/DeviceBuffer.h
     ../common/DeviceVectorBuffer.h
     ../common/Util.h
-    ../common/WindowBase.h
+    ../common/Window.h
     Main.cpp
     Model.h
     OptixState.h

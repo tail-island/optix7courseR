@@ -70,7 +70,7 @@ extern "C" __global__ void __raygen__renderFrame() {
       PayloadParam0,                 // ペイロードではunsigned intしか使えない……。
       PayloadParam1);
 
-  const auto R = static_cast<int>(255.5 * Color[0]);
+  const auto R = static_cast<int>(255.5 * Color[0]);  // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
   const auto G = static_cast<int>(255.5 * Color[1]);
   const auto B = static_cast<int>(255.5 * Color[2]);
 

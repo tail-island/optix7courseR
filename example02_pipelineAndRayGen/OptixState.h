@@ -79,7 +79,7 @@ public:
       CU_CHECK(cuCtxGetCurrent(&CuContext));
 
       OPTIX_CHECK(optixDeviceContextCreate(CuContext, 0, &Result));
-      OPTIX_CHECK(optixDeviceContextSetLogCallback(Result, optixLogCallback, nullptr, 4));
+      OPTIX_CHECK(optixDeviceContextSetLogCallback(Result, common::optixLogCallback, nullptr, 4));
 
       return Result;
     }();
