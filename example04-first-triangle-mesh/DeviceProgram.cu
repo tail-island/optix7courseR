@@ -61,7 +61,7 @@ extern "C" __global__ void __raygen__renderFrame() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&origin),
       *reinterpret_cast<float3 *>(&direction),
-      0.f,                           // tmin
+      0.0f,                          // tmin
       1e20f,                         // tmax
       0.0f,                          // rayTime
       OptixVisibilityMask(255),      //
