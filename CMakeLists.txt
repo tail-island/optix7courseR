@@ -15,6 +15,8 @@ include(cmake/Eigen.cmake)
 include(cmake/glfw.cmake)
 include(cmake/stb.cmake)
 
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # OptiXではbin2cしなければならないらしい。。。
 
 find_program(CUDA_BIN2C bin2c DOC "Path to the cuda-sdk bin2c executable." REQUIRED)
@@ -29,7 +31,7 @@ function(bin2c TARGET EMBEDDED_FILE)
     )
 endfunction()
 
-add_subdirectory(example01_helloOptiX)
-add_subdirectory(example02_pipelineAndRayGen)
-add_subdirectory(example03_inGLFWindow)
-add_subdirectory(example04_firstTriangleMesh)
+add_subdirectory(example01-hello-optix)
+add_subdirectory(example02-pipeline-and-raygen)
+add_subdirectory(example03-in-glfw-window)
+add_subdirectory(example04-first-triangle-mesh)

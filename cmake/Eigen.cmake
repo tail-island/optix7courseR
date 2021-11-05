@@ -6,11 +6,4 @@ FetchContent_Declare(
     GIT_TAG        3.4.0
 )
 
-FetchContent_GetProperties(eigen)
-
-if(NOT eigen_POPULATED)
-    message(STATUS "Fetch Eigen")
-    FetchContent_Populate(eigen)
-
-    include_directories(${eigen_SOURCE_DIR}/)
-endif()
+FetchContent_MakeAvailable(eigen)

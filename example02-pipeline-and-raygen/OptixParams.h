@@ -5,9 +5,7 @@
 namespace osc {
 
 struct LaunchParams {
-  std::uint32_t *ImageBuffer;
-  int Width;
-  int Height;
+  std::uint32_t *imageBuffer;
 };
 
 } // namespace osc

@@ -7,36 +7,36 @@
 #include <cuda_runtime.h>
 #include <optix.h>
 
+#define CUDA_CHECK(call)                                                                                                                       \
+  {                                                                                                                                            \
+    if (call != cudaSuccess) {                                                                                                                 \
+      auto error = cudaGetLastError();                                                                                                         \
+      std::cerr << "CUDA call (" << #call << ") failed. " << cudaGetErrorName(error) << " (" << cudaGetErrorString(error) << ")" << std::endl; \
+      std::exit(2);                                                                                                                            \
+    }                                                                                                                                          \
+  }
+
+#define CU_CHECK(call)                                                        \
+  {                                                                           \
+    if (call != CUDA_SUCCESS) {                                               \
+      std::cerr << "CU call (" << #call << ") failed. " << call << std::endl; \
+      std::exit(2);                                                           \
+    }                                                                         \
+  }
+
+#define OPTIX_CHECK(call)                                                        \
+  {                                                                              \
+    if (call != OPTIX_SUCCESS) {                                                 \
+      std::cerr << "Optix call (" << #call << ") failed. " << call << std::endl; \
+      std::exit(2);                                                              \
+    }                                                                            \
+  }
+
 namespace osc {
 namespace common {
 
-#define CUDA_CHECK(call)                                                                                                            \
-  {                                                                                                                                 \
-    if (call != cudaSuccess) {                                                                                                      \
-      auto error = cudaGetLastError();                                                                                              \
-      std::cerr << "CUDA call (" << #call << ") failed. " << cudaGetErrorName(error) << " (" << cudaGetErrorString(error) << ")\n"; \
-      std::exit(2);                                                                                                                 \
-    }                                                                                                                               \
-  }
-
-#define CU_CHECK(call)                                                   \
-  {                                                                      \
-    if (call != CUDA_SUCCESS) {                                          \
-      std::cerr << "CU call (" << #call << ") failed. " << call << "\n"; \
-      std::exit(2);                                                      \
-    }                                                                    \
-  }
-
-#define OPTIX_CHECK(call)                                                   \
-  {                                                                         \
-    if (call != OPTIX_SUCCESS) {                                            \
-      std::cerr << "Optix call (" << #call << ") failed. " << call << "\n"; \
-      std::exit(2);                                                         \
-    }                                                                       \
-  }
-
-inline auto optixLogCallback(unsigned int Level, const char *Tag, const char *Message, void *) noexcept {
-  std::cerr << "[" << Level << "][" << Tag << "]: " << Message << "\n";
+inline auto optixLogCallback(unsigned int level, const char *tag, const char *message, void *) noexcept {
+  std::cerr << "[" << level << "][" << tag << "]: " << message << std::endl;
 }
 
 } // namespace common

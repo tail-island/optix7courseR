@@ -12,11 +12,11 @@
 namespace osc {
 
 inline auto getCudaDeviceCount() {
-  auto Result = 0;
+  auto result = 0;
 
-  CUDA_CHECK(cudaGetDeviceCount(&Result));
+  CUDA_CHECK(cudaGetDeviceCount(&result));
 
-  return Result;
+  return result;
 }
 
 inline auto init() {
@@ -31,13 +31,12 @@ inline auto init() {
   OPTIX_CHECK(optixInit());
 }
 
-inline auto helloOptiX() {
+inline auto helloOptix() {
   std::cout << "#osc: initializing optix...\n";
   osc::init();
   std::cout << "#osc: successfully initialized optix... yay!\n";
 
-  // for this simple hello-world example, don't do anything else
-  // ...
+  // とりあえずは、OptiXの初期化まで。環境が正しく構築されているかを確認して終了とします。
 
   std::cout << "#osc: done. clean exit.\n";
 }

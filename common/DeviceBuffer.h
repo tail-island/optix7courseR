@@ -2,62 +2,60 @@
 
 #include <cuda_runtime.h>
 
-#include "../common/util.h"
+#include "../common/Util.h"
 
 namespace osc {
 namespace common {
 
 template <typename T>
 class DeviceBuffer final {
-  CUdeviceptr Data;
+  CUdeviceptr data_;
 
-  auto newData() noexcept {
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>(&Data), dataSize()));
+  auto mallocData() noexcept {
+    CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>(&data_), getDataSize()));
   }
 
-  auto deleteData() noexcept {
-    if (!Data) {
-      return;
-    }
-
-    CUDA_CHECK(cudaFree(reinterpret_cast<void *>(Data)));
+  auto freeData() noexcept {
+    CUDA_CHECK(cudaFree(reinterpret_cast<void *>(data_)));
   }
 
 public:
   DeviceBuffer() noexcept {
-    newData();
+    mallocData();
   }
 
-  DeviceBuffer(const DeviceBuffer &Other) noexcept {
-    newData();
+  DeviceBuffer(const DeviceBuffer<T> &other) noexcept : DeviceBuffer{} {
+    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(data_), reinterpret_cast<void *>(other.data_), getDataSize(), cudaMemcpyDeviceToDevice));
   }
 
-  DeviceBuffer(DeviceBuffer &&Other) noexcept : Data(Other.Data) {
-    Other.Data = 0;
+  DeviceBuffer(DeviceBuffer<T> &&other) noexcept : data_{other.data_} {
+    other.data_ = 0;
   }
 
   ~DeviceBuffer() {
-    deleteData();
+    if (data_) {
+      freeData();
+    }
   }
 
-  auto data() const noexcept {
-    return Data;
+  const auto &getData() const noexcept {
+    return data_;
   }
 
-  auto dataSize() const noexcept {
+  auto getDataSize() const noexcept {
     return sizeof(T);
   }
 
-  auto set(const T &Data) noexcept {
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(DeviceBuffer::Data), &Data, dataSize(), cudaMemcpyHostToDevice));
+  auto set(const T &data) noexcept {
+    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(data_), &data, getDataSize(), cudaMemcpyHostToDevice));
   }
 
   auto get() const noexcept {
-    auto Result = T{};
+    auto result = T{};
 
-    CUDA_CHECK(cudaMemcpy(&Result, reinterpret_cast<void *>(Data), dataSize(), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(&result, reinterpret_cast<void *>(data_), getDataSize(), cudaMemcpyDeviceToHost));
 
-    return Result;
+    return result;
   }
 };
 
