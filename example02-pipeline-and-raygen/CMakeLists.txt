@@ -50,5 +50,5 @@ target_include_directories(${TARGET} PRIVATE
 target_link_libraries(${TARGET}
     CUDA::cudart
     CUDA::cuda_driver
-    dl
+    ${CMAKE_DL_LIBS}
 )
