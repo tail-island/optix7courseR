@@ -116,8 +116,7 @@ public:
         return result;
       }();
 
-      const auto vertexesBufferData = vertexesBuffer_.getData();       // なんでかポインターへのポインターが必要なので、変数を宣言しました。。。
-      const auto triangleArrayFlags = std::array<std::uint32_t, 1>{0}; // なんでかポインターが必要なので、変数を宣言しました。。。
+      const auto triangleArrayFlags = 0u;
 
       const auto buildInput = [&] {
         auto result = OptixBuildInput{};
@@ -127,14 +126,14 @@ public:
         result.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
         result.triangleArray.vertexStrideInBytes = sizeof(Eigen::Vector3f);
         result.triangleArray.numVertices = vertexesBuffer_.getSize();
-        result.triangleArray.vertexBuffers = &vertexesBufferData;
+        result.triangleArray.vertexBuffers = &vertexesBuffer_.getData();
 
         result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
         result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);
         result.triangleArray.numIndexTriplets = indexesBuffer_.getSize();
         result.triangleArray.indexBuffer = indexesBuffer_.getData();
 
-        result.triangleArray.flags = triangleArrayFlags.data();
+        result.triangleArray.flags = &triangleArrayFlags;
         result.triangleArray.numSbtRecords = 1;
         result.triangleArray.sbtIndexOffsetBuffer = 0;
         result.triangleArray.sbtIndexOffsetSizeInBytes = 0;
