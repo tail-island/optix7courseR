@@ -25,7 +25,7 @@ struct RaygenData {
 
 struct TriangleMeshes {
   Eigen::Vector3f *vertexes;
-  Eigen::Vector3i *indexes;
+  Eigen::Vector3i *indices;
   Eigen::Vector3f color;
 };
 

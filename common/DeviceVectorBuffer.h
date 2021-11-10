@@ -25,28 +25,23 @@ class DeviceVectorBuffer final {
 
 public:
   DeviceVectorBuffer(std::size_t size = 0) noexcept : size_{size} {
-    std::cout << "constructor 0" << std::endl;
     mallocData();
   }
 
   DeviceVectorBuffer(const std::vector<T> &data) noexcept : DeviceVectorBuffer{std::size(data)} {
-    std::cout << "constructor 1" << std::endl;
     set(data);
   }
 
   DeviceVectorBuffer(const DeviceVectorBuffer &other) noexcept : DeviceVectorBuffer{other.size_} {
-    std::cout << "constructor 2" << std::endl;
     CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(data_), reinterpret_cast<void *>(other.data_), getDataSize(), cudaMemcpyDeviceToDevice));
   }
 
   DeviceVectorBuffer(DeviceVectorBuffer &&other) noexcept : data_{other.data_}, size_{other.size_} {
-    std::cout << "constructor 3" << std::endl;
     other.data_ = 0;
     other.size_ = 0;
   }
 
   ~DeviceVectorBuffer() {
-    std::cout << "destructor" << std::endl;
     if (data_) {
       freeData();
     }

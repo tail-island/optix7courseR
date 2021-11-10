@@ -10,15 +10,15 @@ namespace osc {
 
 class Model final {
   std::vector<Eigen::Vector3f> vertexes_;
-  std::vector<Eigen::Vector3i> indexes_;
+  std::vector<Eigen::Vector3i> indices_;
 
 public:
   const auto &getVertexes() const noexcept {
     return vertexes_;
   }
 
-  const auto &getIndexes() const noexcept {
-    return indexes_;
+  const auto &getIndices() const noexcept {
+    return indices_;
   }
 
   auto addCube(const Eigen::Vector3f &center, const Eigen::Vector3f &size) noexcept {
@@ -32,7 +32,7 @@ public:
         {0, 1, 1},
         {1, 1, 1}};
 
-    const auto unitCubeIndexes = std::vector<Eigen::Vector3i>{
+    const auto unitCubeIndices = std::vector<Eigen::Vector3i>{
         {0, 1, 3},
         {2, 3, 0},
         {5, 7, 6},
@@ -53,7 +53,7 @@ public:
       return affine * unitCubeVertex;
     });
 
-    std::transform(std::begin(unitCubeIndexes), std::end(unitCubeIndexes), std::back_inserter(indexes_), [&](const auto &unitCubeIndex) {
+    std::transform(std::begin(unitCubeIndices), std::end(unitCubeIndices), std::back_inserter(indices_), [&](const auto &unitCubeIndex) {
       return firstVertexIndex + unitCubeIndex.array();
     });
   }

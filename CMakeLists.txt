@@ -14,6 +14,7 @@ find_package(OptiX       REQUIRED)
 include(cmake/Eigen.cmake)
 include(cmake/glfw.cmake)
 include(cmake/stb.cmake)
+include(cmake/tinyobjloader.cmake)
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -37,3 +38,4 @@ add_subdirectory(example03-in-glfw-window)
 add_subdirectory(example04-first-triangle-mesh)
 add_subdirectory(example05-first-shading)
 add_subdirectory(example06-multiple-objects)
+add_subdirectory(example07-first-real-model)

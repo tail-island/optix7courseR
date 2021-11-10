@@ -40,7 +40,7 @@ class OptixState final {
   OptixDeviceContext deviceContext_;
 
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> vertexesBuffers_;
-  std::vector<common::DeviceVectorBuffer<Eigen::Vector3i>> indexesBuffers_;
+  std::vector<common::DeviceVectorBuffer<Eigen::Vector3i>> indicesBuffers_;
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
 
@@ -103,8 +103,8 @@ public:
       return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getVertexes()};
     });
 
-    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(indexesBuffers_), [](const Object &object) {
-      return common::DeviceVectorBuffer<Eigen::Vector3i>{object.getIndexes()};
+    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(indicesBuffers_), [](const Object &object) {
+      return common::DeviceVectorBuffer<Eigen::Vector3i>{object.getIndices()};
     });
 
     [&] {
@@ -136,8 +136,8 @@ public:
 
             result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
             result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);
-            result.triangleArray.numIndexTriplets = indexesBuffers_[i].getSize();
-            result.triangleArray.indexBuffer = indexesBuffers_[i].getData();
+            result.triangleArray.numIndexTriplets = indicesBuffers_[i].getSize();
+            result.triangleArray.indexBuffer = indicesBuffers_[i].getData();
 
             result.triangleArray.flags = &triangleArrayFlags;
             result.triangleArray.numSbtRecords = 1;
@@ -422,7 +422,7 @@ public:
               OPTIX_CHECK(optixSbtRecordPackHeader(hitgroupProgramGroups_[0], &result));
 
               result.triangleMeshes.vertexes = reinterpret_cast<Eigen::Vector3f *>(vertexesBuffers_[i].getData());
-              result.triangleMeshes.indexes = reinterpret_cast<Eigen::Vector3i *>(indexesBuffers_[i].getData());
+              result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
               result.triangleMeshes.color = model.getObjects()[i].getColor();
 
               return result;

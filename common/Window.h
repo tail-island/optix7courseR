@@ -149,7 +149,7 @@ public:
 };
 
 constexpr float radianPerPixel = 0.5f * static_cast<float>(M_PI) / 180.0f;
-constexpr float stepPerPixel = 0.1f;
+constexpr float stepPerPixel = 0.05f;
 
 class CameraWindow : public Window {
 protected:
@@ -213,9 +213,12 @@ protected:
     auto x = z.cross(camera_.getUp()).normalized();
     auto y = x.cross(z).normalized();
 
+    // 移動率（モデルの大きさによって移動距離をイイ感じに変えたい）を計算します。
+    auto stepRatio = (camera_.getFrom() - camera_.getAt()).norm();
+
     // fromの座標系でfromとatを平行移動させます。
-    const auto affine = Eigen::Translation3f(x * step.x()) * Eigen::Translation3f(y * step.y()) * Eigen::Translation3f(z * step.z());
-    camera_.setFrom(affine * camera_.getFrom()); // + x * step.x() +  y * step.y() + z * step.z());
+    const auto affine = Eigen::Translation3f(x * step.x() * stepRatio) * Eigen::Translation3f(y * step.y() * stepRatio) * Eigen::Translation3f(z * step.z() * stepRatio);
+    camera_.setFrom(affine * camera_.getFrom());
     camera_.setAt(affine * camera_.getAt());
 
     isCameraMoved_ = true;

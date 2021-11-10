@@ -78,7 +78,7 @@ extern "C" __global__ void __closesthit__radiance() {
   // ポリゴンの法線を取得します。
 
   const auto triangleMeshNormal = [&] {
-    const auto &index = triangleMeshes.indexes[optixGetPrimitiveIndex()];
+    const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
 
     const auto &vector1 = triangleMeshes.vertexes[index.x()];
     const auto &vector2 = triangleMeshes.vertexes[index.y()];

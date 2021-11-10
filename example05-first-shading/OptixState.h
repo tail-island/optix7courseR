@@ -40,7 +40,7 @@ class OptixState final {
   OptixDeviceContext deviceContext_;
 
   common::DeviceVectorBuffer<Eigen::Vector3f> vertexesBuffer_;
-  common::DeviceVectorBuffer<Eigen::Vector3i> indexesBuffer_;
+  common::DeviceVectorBuffer<Eigen::Vector3i> indicesBuffer_;
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
 
@@ -102,8 +102,8 @@ public:
     vertexesBuffer_.setSize(std::size(model.getVertexes()));
     vertexesBuffer_.set(model.getVertexes());
 
-    indexesBuffer_.setSize(std::size(model.getIndexes()));
-    indexesBuffer_.set(model.getIndexes());
+    indicesBuffer_.setSize(std::size(model.getIndices()));
+    indicesBuffer_.set(model.getIndices());
 
     [&] {
       const auto accelBuildOptions = [&] {
@@ -130,8 +130,8 @@ public:
 
         result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
         result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);
-        result.triangleArray.numIndexTriplets = indexesBuffer_.getSize();
-        result.triangleArray.indexBuffer = indexesBuffer_.getData();
+        result.triangleArray.numIndexTriplets = indicesBuffer_.getSize();
+        result.triangleArray.indexBuffer = indicesBuffer_.getData();
 
         result.triangleArray.flags = &triangleArrayFlags;
         result.triangleArray.numSbtRecords = 1;
@@ -411,7 +411,7 @@ public:
             OPTIX_CHECK(optixSbtRecordPackHeader(hitgroupProgramGroups_[0], &result));
 
             result.triangleMeshes.vertexes = reinterpret_cast<Eigen::Vector3f *>(vertexesBuffer_.getData());
-            result.triangleMeshes.indexes = reinterpret_cast<Eigen::Vector3i *>(indexesBuffer_.getData());
+            result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffer_.getData());
             result.triangleMeshes.color = model.getColor();
 
             return result;
