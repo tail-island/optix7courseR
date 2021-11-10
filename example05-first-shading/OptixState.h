@@ -174,7 +174,7 @@ public:
 
     // OptiXの処理パイプラインのオプションを作成します。
 
-    auto pipelineCompileOptions = [&] {
+    const auto pipelineCompileOptions = [&] {
       std::cout << "#osc: creating PipelineCompileOptions...\n";
 
       auto result = OptixPipelineCompileOptions{};
@@ -189,7 +189,7 @@ public:
       return result;
     }();
 
-    auto pipelineLinkOptions = [&] {
+    const auto pipelineLinkOptions = [&] {
       std::cout << "#osc: creating PipelineLinkOptions...\n";
 
       auto result = OptixPipelineLinkOptions{};
@@ -206,7 +206,7 @@ public:
 
       auto result = OptixModule{};
 
-      auto moduleCompileOptions = [&] {
+      const auto moduleCompileOptions = [&] {
         auto result = OptixModuleCompileOptions{};
 
         result.maxRegisterCount = 50;
@@ -240,7 +240,7 @@ public:
 
       auto result = std::vector<OptixProgramGroup>{1};
 
-      auto programGroupDesc = [&] {
+      const auto programGroupDesc = [&] {
         auto result = OptixProgramGroupDesc{};
 
         result.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
@@ -250,7 +250,7 @@ public:
         return result;
       }();
 
-      auto programGroupOptions = OptixProgramGroupOptions{};
+      const auto programGroupOptions = OptixProgramGroupOptions{};
 
       auto [log, logSize] = [&] {
         auto result = std::array<char, 2048>{};
@@ -274,9 +274,9 @@ public:
 
       auto result = std::vector<OptixProgramGroup>{1};
 
-      auto programGroupOptions = OptixProgramGroupOptions{};
+      const auto programGroupOptions = OptixProgramGroupOptions{};
 
-      auto programGroupDesc = [&] {
+      const auto programGroupDesc = [&] {
         auto result = OptixProgramGroupDesc{};
 
         result.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
@@ -310,9 +310,9 @@ public:
 
       auto result = std::vector<OptixProgramGroup>{1};
 
-      auto programGroupOptions = OptixProgramGroupOptions{};
+      const auto programGroupOptions = OptixProgramGroupOptions{};
 
-      auto programGroupDesc = [&] {
+      const auto programGroupDesc = [&] {
         auto result = OptixProgramGroupDesc{};
 
         result.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
@@ -344,7 +344,7 @@ public:
 
       auto result = OptixPipeline{};
 
-      auto programGroups = [&] {
+      const auto programGroups = [&] {
         auto result = std::vector<OptixProgramGroup>{};
 
         std::copy(std::begin(raygenProgramGroups_), std::end(raygenProgramGroups_), std::back_inserter(result));
