@@ -34,6 +34,32 @@ public:
     vertexesBuffer_.set(model.getVertexes());
     indexesBuffer_.set(model.getIndexes());
 
+    // HitgroupRecordを設定します。
+
+    auto hitgroupRecords = [&] {
+      auto result = std::vector<HitgroupRecord>{optixState_.getShaderBindingTable().hitgroupRecordCount};
+
+      optixSbtRecordPackHeader(optixState_.getHitgroupProgramGroups()[0], result.data());
+
+      return result;
+    }();
+
+    for (auto &hitgroupRecord : hitgroupRecords) {
+      hitgroupRecord.triangleMeshes = [&] {
+        auto result = TriangleMeshes{};
+
+        result.vertexes = reinterpret_cast<Eigen::Vector3f *>(vertexesBuffer_.getData());
+        result.indexes = reinterpret_cast<Eigen::Vector3i *>(indexesBuffer_.getData());
+        result.color = model.getColor();
+
+        return result;
+      }();
+    }
+
+    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(optixState_.getShaderBindingTable().hitgroupRecordBase), hitgroupRecords.data(), sizeof(HitgroupRecord) * std::size(hitgroupRecords), cudaMemcpyHostToDevice));
+
+    // TraversableHandleを作成します。
+
     const auto vertexesBufferData = vertexesBuffer_.getData();       // なんでかポインターへのポインターが必要なので、変数を宣言しました。。。
     const auto triangleArrayFlags = std::array<std::uint32_t, 1>{0}; // なんでかポインターが必要なので、変数を宣言しました。。。
 

@@ -33,16 +33,6 @@ inline __device__ auto getPayloadPointer() noexcept {
   return reinterpret_cast<void *>(static_cast<std::uint64_t>(optixGetPayload_0()) << 32 | static_cast<std::uint64_t>(optixGetPayload_1()));
 }
 
-// 色は、とりあえずポリゴンのインデックスから適当に作ります。
-
-inline __device__ auto getRandomColor(unsigned int seed) noexcept {
-  const auto r = seed * 13 * 17 + 0x234235;
-  const auto g = seed * 7 * 3 * 5 + 0x773477;
-  const auto b = seed * 11 * 19 + 0x223766;
-
-  return Eigen::Vector3f((r & 0x00ff) / 255.0f, (g & 0x00ff) / 255.0f, (b & 0x00ff) / 255.0f);
-}
-
 // 光を生成します。
 
 extern "C" __global__ void __raygen__renderFrame() {
@@ -83,7 +73,31 @@ extern "C" __global__ void __raygen__renderFrame() {
 // 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
 
 extern "C" __global__ void __closesthit__radiance() {
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = getRandomColor(optixGetPrimitiveIndex()); // とりあえず、光が衝突したポリゴンのインデックスをシードにして、ランダムな色を割り当てます。
+  const auto &triangleMeshes = reinterpret_cast<HitgroupData *>(optixGetSbtDataPointer())->triangleMeshes;
+
+  // ポリゴンの法線を取得します。
+
+  const auto triangleMeshNormal = [&] {
+    const auto &index = triangleMeshes.indexes[optixGetPrimitiveIndex()];
+
+    const auto &vector1 = triangleMeshes.vertexes[index.x()];
+    const auto &vector2 = triangleMeshes.vertexes[index.y()];
+    const auto &vector3 = triangleMeshes.vertexes[index.z()];
+
+    return (vector2 - vector1).cross(vector3 - vector1).normalized();
+  }();
+
+  // レイの向きを取得します。
+
+  const auto rayDirection = [&] {
+    auto result = optixGetWorldRayDirection();
+
+    return *reinterpret_cast<Eigen::Vector3f *>(&result);
+  }();
+
+  // 色は、光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。えっと、カメラにライトが付いていると思ってください……。
+
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = triangleMeshes.color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
 }
 
 // 物体に光が衝突しそうな場合の処理？

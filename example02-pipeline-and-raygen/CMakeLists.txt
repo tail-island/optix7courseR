@@ -11,6 +11,12 @@ target_compile_features(${TARGET}_ptx PRIVATE
     cuda_std_17
 )
 
+target_compile_options(${TARGET}_ptx PRIVATE
+    -Xcudafe
+    --diag_suppress=esa_on_defaulted_function_ignored
+    --expt-relaxed-constexpr
+)
+
 target_include_directories(${TARGET}_ptx PRIVATE
     ${OptiX_INCLUDE}
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}

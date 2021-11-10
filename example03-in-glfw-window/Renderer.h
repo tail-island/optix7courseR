@@ -27,14 +27,14 @@ public:
     ;
   }
 
-  void resize(int width, int height) noexcept {
+  auto resize(int width, int height) noexcept {
     width_ = width;
     height_ = height;
 
     imageBuffer_.setSize(width * height);
   }
 
-  std::vector<std::uint32_t> render() noexcept {
+  auto render() noexcept {
     optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), frameId_});
 
     OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), optixLaunchParamsBuffer_.getData(), optixLaunchParamsBuffer_.getDataSize(), &optixState_.getShaderBindingTable(), width_, height_, 1));

@@ -1,4 +1,4 @@
-set(TARGET example03-in-glfw-window)
+set(TARGET example05-first-shading)
 
 # PTXファイルを作成します。
 
@@ -22,6 +22,10 @@ target_include_directories(${TARGET}_ptx PRIVATE
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
 
+target_link_libraries(${TARGET}_ptx
+    Eigen3::Eigen
+)
+
 set_property(TARGET ${TARGET}_ptx PROPERTY CUDA_PTX_COMPILATION ON)
 set_property(TARGET ${TARGET}_ptx PROPERTY CUDA_ARCHITECTURES   OFF)  # WindowsでCUDA_ARCHITECTUREを指定すると、Visual Studio 2019のプロジェクトのCUDA C/C++ > Device > Code Generationの値が不正になるので、指定せずにOFFにしました。。。
 
@@ -39,6 +43,7 @@ add_executable(${TARGET}
     ../common/Util.h
     ../common/Window.h
     Main.cpp
+    Model.h
     OptixParams.h
     OptixState.h
     Renderer.h
