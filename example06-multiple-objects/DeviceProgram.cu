@@ -80,9 +80,9 @@ extern "C" __global__ void __closesthit__radiance() {
   const auto triangleMeshNormal = [&] {
     const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
 
-    const auto &vector1 = triangleMeshes.vertexes[index.x()];
-    const auto &vector2 = triangleMeshes.vertexes[index.y()];
-    const auto &vector3 = triangleMeshes.vertexes[index.z()];
+    const auto &vector1 = triangleMeshes.vertices[index.x()];
+    const auto &vector2 = triangleMeshes.vertices[index.y()];
+    const auto &vector3 = triangleMeshes.vertices[index.z()];
 
     return (vector2 - vector1).cross(vector3 - vector1).normalized();
   }();

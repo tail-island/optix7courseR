@@ -39,7 +39,7 @@ class OptixState final {
   CUstream stream_;
   OptixDeviceContext deviceContext_;
 
-  std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> vertexesBuffers_;
+  std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> verticesBuffers_;
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3i>> indicesBuffers_;
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
@@ -99,7 +99,7 @@ public:
 
     // OptixのTraversableHandleを生成します。
 
-    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(vertexesBuffers_), [](const Object &object) {
+    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(verticesBuffers_), [](const Object &object) {
       return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getVertices()};
     });
 
@@ -131,8 +131,8 @@ public:
 
             result.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
             result.triangleArray.vertexStrideInBytes = sizeof(Eigen::Vector3f);
-            result.triangleArray.numVertices = vertexesBuffers_[i].getSize();
-            result.triangleArray.vertexBuffers = &vertexesBuffers_[i].getData();
+            result.triangleArray.numVertices = verticesBuffers_[i].getSize();
+            result.triangleArray.vertexBuffers = &verticesBuffers_[i].getData();
 
             result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
             result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);
@@ -421,7 +421,7 @@ public:
 
               OPTIX_CHECK(optixSbtRecordPackHeader(hitgroupProgramGroups_[0], &result));
 
-              result.triangleMeshes.vertexes = reinterpret_cast<Eigen::Vector3f *>(vertexesBuffers_[i].getData());
+              result.triangleMeshes.vertices = reinterpret_cast<Eigen::Vector3f *>(verticesBuffers_[i].getData());
               result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
               result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
 

@@ -37,7 +37,7 @@ class OptixState final {
   CUstream stream_;
   OptixDeviceContext deviceContext_;
 
-  common::DeviceVectorBuffer<Eigen::Vector3f> vertexesBuffer_;
+  common::DeviceVectorBuffer<Eigen::Vector3f> verticesBuffer_;
   common::DeviceVectorBuffer<Eigen::Vector3i> indicesBuffer_;
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
@@ -97,8 +97,8 @@ public:
 
     // OptixのTraversableHandleを生成します。
 
-    vertexesBuffer_.setSize(std::size(model.getVertexes()));
-    vertexesBuffer_.set(model.getVertexes());
+    verticesBuffer_.setSize(std::size(model.getVertices()));
+    verticesBuffer_.set(model.getVertices());
 
     indicesBuffer_.setSize(std::size(model.getIndices()));
     indicesBuffer_.set(model.getIndices());
@@ -123,8 +123,8 @@ public:
 
         result.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
         result.triangleArray.vertexStrideInBytes = sizeof(Eigen::Vector3f);
-        result.triangleArray.numVertices = vertexesBuffer_.getSize();
-        result.triangleArray.vertexBuffers = &vertexesBuffer_.getData();
+        result.triangleArray.numVertices = verticesBuffer_.getSize();
+        result.triangleArray.vertexBuffers = &verticesBuffer_.getData();
 
         result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
         result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);

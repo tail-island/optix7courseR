@@ -9,12 +9,12 @@
 namespace osc {
 
 class Model final {
-  std::vector<Eigen::Vector3f> vertexes_;
+  std::vector<Eigen::Vector3f> vertices_;
   std::vector<Eigen::Vector3i> indices_;
 
 public:
-  const auto &getVertexes() const noexcept {
-    return vertexes_;
+  const auto &getVertices() const noexcept {
+    return vertices_;
   }
 
   const auto &getIndices() const noexcept {
@@ -22,7 +22,7 @@ public:
   }
 
   auto addCube(const Eigen::Vector3f &center, const Eigen::Vector3f &size) noexcept {
-    const auto unitCubeVertexes = std::vector<Eigen::Vector3f>{
+    const auto unitCubeVertices = std::vector<Eigen::Vector3f>{
         {0, 0, 0},
         {1, 0, 0},
         {0, 1, 0},
@@ -46,10 +46,10 @@ public:
         {4, 0, 2},
         {4, 2, 6}};
 
-    const auto firstVertexIndex = std::size(vertexes_);
+    const auto firstVertexIndex = std::size(vertices_);
     const auto affine = Eigen::Translation3f{center - size / 2} * Eigen::Scaling(size);
 
-    std::transform(std::begin(unitCubeVertexes), std::end(unitCubeVertexes), std::back_inserter(vertexes_), [&](const auto &unitCubeVertex) {
+    std::transform(std::begin(unitCubeVertices), std::end(unitCubeVertices), std::back_inserter(vertices_), [&](const auto &unitCubeVertex) {
       return affine * unitCubeVertex;
     });
 
