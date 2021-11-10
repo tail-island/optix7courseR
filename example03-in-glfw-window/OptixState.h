@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <tuple>
 #include <vector>
 
 #include <cuda_runtime.h>
@@ -397,15 +398,15 @@ public:
     CUDA_CHECK(cudaFree(reinterpret_cast<void *>(shaderBindingTable_.raygenRecord)));
   }
 
-  const auto &getStream() const {
+  const auto &getStream() const noexcept {
     return stream_;
   }
 
-  const auto &getPipeline() const {
+  const auto &getPipeline() const noexcept {
     return pipeline_;
   }
 
-  const auto &getShaderBindingTable() const {
+  const auto &getShaderBindingTable() const noexcept {
     return shaderBindingTable_;
   }
 };

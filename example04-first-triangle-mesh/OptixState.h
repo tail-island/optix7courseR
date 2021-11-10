@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <tuple>
 #include <vector>
 
 #include <cuda_runtime.h>
@@ -11,6 +12,7 @@
 #include <optix_stubs.h>
 
 #include "../common/Util.h"
+#include "Model.h"
 #include "OptixParams.h"
 
 namespace osc {
@@ -34,6 +36,12 @@ struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) MissRecord {
 class OptixState final {
   CUstream stream_;
   OptixDeviceContext deviceContext_;
+
+  common::DeviceVectorBuffer<Eigen::Vector3f> vertexesBuffer_;
+  common::DeviceVectorBuffer<Eigen::Vector3i> indexesBuffer_;
+  common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
+  OptixTraversableHandle traversableHandle_;
+
   OptixModule module_;
   std::vector<OptixProgramGroup> raygenProgramGroups_;
   std::vector<OptixProgramGroup> hitgroupProgramGroups_;
@@ -42,7 +50,7 @@ class OptixState final {
   OptixShaderBindingTable shaderBindingTable_;
 
 public:
-  OptixState(int deviceId) noexcept {
+  OptixState(int deviceId, const Model &model) noexcept {
     // CUDAデバイスがないと始まらないので、デバイスがあるか確認します。
 
     [&] {
@@ -85,6 +93,81 @@ public:
       OPTIX_CHECK(optixDeviceContextSetLogCallback(result, common::optixLogCallback, nullptr, 4));
 
       return result;
+    }();
+
+    // OptixのTraversableHandleを生成します。
+
+    vertexesBuffer_.setSize(std::size(model.getVertexes()));
+    vertexesBuffer_.set(model.getVertexes());
+
+    indexesBuffer_.setSize(std::size(model.getIndexes()));
+    indexesBuffer_.set(model.getIndexes());
+
+    [&] {
+      const auto accelBuildOptions = [&] {
+        auto result = OptixAccelBuildOptions{};
+
+        result.buildFlags = OPTIX_BUILD_FLAG_NONE | OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        result.motionOptions.numKeys = 1;
+        result.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+        return result;
+      }();
+
+      const auto vertexesBufferData = vertexesBuffer_.getData();       // なんでかポインターへのポインターが必要なので、変数を宣言しました。。。
+      const auto triangleArrayFlags = std::array<std::uint32_t, 1>{0}; // なんでかポインターが必要なので、変数を宣言しました。。。
+
+      const auto buildInput = [&] {
+        auto result = OptixBuildInput{};
+
+        result.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+
+        result.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
+        result.triangleArray.vertexStrideInBytes = sizeof(Eigen::Vector3f);
+        result.triangleArray.numVertices = vertexesBuffer_.getSize();
+        result.triangleArray.vertexBuffers = &vertexesBufferData;
+
+        result.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        result.triangleArray.indexStrideInBytes = sizeof(Eigen::Vector3i);
+        result.triangleArray.numIndexTriplets = indexesBuffer_.getSize();
+        result.triangleArray.indexBuffer = indexesBuffer_.getData();
+
+        result.triangleArray.flags = triangleArrayFlags.data();
+        result.triangleArray.numSbtRecords = 1;
+        result.triangleArray.sbtIndexOffsetBuffer = 0;
+        result.triangleArray.sbtIndexOffsetSizeInBytes = 0;
+        result.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+
+        return result;
+      }();
+
+      const auto accelBufferSizes = [&] {
+        auto result = OptixAccelBufferSizes{};
+
+        OPTIX_CHECK(optixAccelComputeMemoryUsage(deviceContext_, &accelBuildOptions, &buildInput, 1, &result));
+
+        return result;
+      }();
+
+      const auto compactedSizeBuffer = common::DeviceBuffer<std::uint64_t>{};
+
+      const auto accelEmitDesc = [&] {
+        auto result = OptixAccelEmitDesc{};
+
+        result.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+        result.result = compactedSizeBuffer.getData();
+
+        return result;
+      }();
+
+      const auto tempBuffer = common::DeviceVectorBuffer<std::uint8_t>{accelBufferSizes.tempSizeInBytes};
+      const auto outputBuffer = common::DeviceVectorBuffer<std::uint8_t>{accelBufferSizes.outputSizeInBytes};
+
+      OPTIX_CHECK(optixAccelBuild(deviceContext_, 0, &accelBuildOptions, &buildInput, 1, tempBuffer.getData(), tempBuffer.getDataSize(), outputBuffer.getData(), outputBuffer.getDataSize(), &traversableHandle_, &accelEmitDesc, 1));
+
+      traversableBuffer_.setSize(compactedSizeBuffer.get());
+
+      OPTIX_CHECK(optixAccelCompact(deviceContext_, 0, traversableHandle_, traversableBuffer_.getData(), traversableBuffer_.getDataSize(), &traversableHandle_));
     }();
 
     // OptiXの処理パイプラインのオプションを作成します。
@@ -400,23 +483,27 @@ public:
     CUDA_CHECK(cudaFree(reinterpret_cast<void *>(shaderBindingTable_.raygenRecord)));
   }
 
-  const auto &getStream() const {
+  const auto &getStream() const noexcept {
     return stream_;
   }
 
-  const auto &getDeviceContext() const {
+  const auto &getDeviceContext() const noexcept {
     return deviceContext_;
   }
 
-  const auto &getPipeline() const {
+  const auto &getTraversableHandle() const noexcept {
+    return traversableHandle_;
+  }
+
+  const auto &getPipeline() const noexcept {
     return pipeline_;
   }
 
-  const auto &getRaygenProgramGroups() const {
+  const auto &getRaygenProgramGroups() const noexcept {
     return raygenProgramGroups_;
   }
 
-  const auto &getShaderBindingTable() const {
+  const auto &getShaderBindingTable() const noexcept {
     return shaderBindingTable_;
   }
 };

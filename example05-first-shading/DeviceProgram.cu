@@ -95,7 +95,7 @@ extern "C" __global__ void __closesthit__radiance() {
     return *reinterpret_cast<Eigen::Vector3f *>(&result);
   }();
 
-  // 色は、光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。えっと、カメラにライトが付いていると思ってください……。
+  // 色は、光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。カメラにライトが付いているとでも思って、納得してください……。
 
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = triangleMeshes.color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
 }
