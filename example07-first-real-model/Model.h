@@ -15,7 +15,7 @@ namespace osc {
 
 class Object final {
   std::vector<Eigen::Vector3f> vertices_;
-  std::vector<Eigen::Vector3f> normals_;  // 頂点法線。面法線じゃありません。
+  std::vector<Eigen::Vector3f> normals_; // 頂点法線。面法線じゃありません。
   std::vector<Eigen::Vector2f> texcoords_;
   std::vector<Eigen::Vector3i> indices_;
 
@@ -49,9 +49,9 @@ public:
 
 class Model final {
   std::vector<Object> objects_;
-  Eigen::AlignedBox3f bound_;
+  Eigen::AlignedBox3f boundBox_;
 
-  auto getRandomDiffuse(unsigned int seed) noexcept {
+  static auto getRandomDiffuse(unsigned int seed) noexcept {
     const auto r = seed * 13 * 17 + 0x234235;
     const auto g = seed * 7 * 3 * 5 + 0x773477;
     const auto b = seed * 11 * 19 + 0x223766;
@@ -59,13 +59,14 @@ class Model final {
     return Eigen::Vector3f((r & 0x00ff) / 255.0f, (g & 0x00ff) / 255.0f, (b & 0x00ff) / 255.0f);
   }
 
-public:
-  Model(const std::string &path) noexcept {
+  static auto createObjects(const std::string &path) noexcept {
+    auto result = std::vector<Object>{};
+
     auto attrib = tinyobj::attrib_t{};
     auto shapes = std::vector<tinyobj::shape_t>{};
     auto materials = std::vector<tinyobj::material_t>{};
     auto error = std::string{};
-    auto materialPath = path.substr(0, path.rfind('/') + 1);  // へっぽこなやり方でごめんなさい。。。
+    auto materialPath = path.substr(0, path.rfind('/') + 1); // へっぽこなやり方でごめんなさい。。。
 
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, path.c_str(), materialPath.c_str())) {
       std::cerr << error << std::endl;
@@ -115,23 +116,36 @@ public:
           indices.emplace_back(localIndex);
         }
 
-        objects_.emplace_back(vertices, normals, texcoords, indices, getRandomDiffuse(materialId));
+        result.emplace_back(vertices, normals, texcoords, indices, getRandomDiffuse(materialId));
       }
     }
 
-    for (const auto &object : objects_) {
+    return result;
+  }
+
+  static auto createBoundBox(const std::vector<Object> &objects) noexcept {
+    auto result = Eigen::AlignedBox3f{};
+
+    for (const auto &object : objects) {
       for (const auto &vertex : object.getVertices()) {
-        bound_.extend(vertex);
+        result.extend(vertex);
       }
     }
+
+    return result;
+  }
+
+public:
+  Model(const std::string &path) noexcept : objects_(createObjects(path)), boundBox_(createBoundBox(objects_)) {
+    ;
   }
 
   const auto &getObjects() const noexcept {
     return objects_;
   }
 
-  const auto &getBound() const noexcept {
-    return bound_;
+  const auto &getBoundBox() const noexcept {
+    return boundBox_;
   }
 };
 
