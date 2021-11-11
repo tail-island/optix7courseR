@@ -28,8 +28,11 @@ struct TriangleMeshes {
   Eigen::Vector3f *normals;
   Eigen::Vector2f *textureCoordinates;
   Eigen::Vector3i *indices;
-  Eigen::Vector3f color;
+
+  bool hasTextureObject;
   cudaTextureObject_t textureObject;
+
+  Eigen::Vector3f color;
 };
 
 struct HitgroupData {

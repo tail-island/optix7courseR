@@ -80,7 +80,7 @@ extern "C" __global__ void __closesthit__radiance() {
   const auto u = optixGetTriangleBarycentrics().x;
   const auto v = optixGetTriangleBarycentrics().y;
 
-  // ポリゴンの法線を取得します。
+  // 法線を取得します。
 
   const auto triangleMeshNormal = [&] {
     return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
@@ -89,7 +89,7 @@ extern "C" __global__ void __closesthit__radiance() {
   // ポリゴンの色を取得します。
 
   const auto color = [&] {
-    if (!triangleMeshes.textureObject) {
+    if (!triangleMeshes.hasTextureObject) {
       return triangleMeshes.color;
     }
 

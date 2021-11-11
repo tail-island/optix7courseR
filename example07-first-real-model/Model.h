@@ -11,31 +11,51 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+namespace std {
+  inline auto operator<(const tinyobj::index_t &index1, const tinyobj::index_t &index2) {
+    if (index1.vertex_index < index2.vertex_index) {
+      return true;
+    }
+
+    if (index1.vertex_index > index2.vertex_index) {
+      return false;
+    }
+
+    if (index1.normal_index < index2.normal_index) {
+      return true;
+    }
+
+    if (index1.normal_index > index2.normal_index) {
+      return false;
+    }
+
+    if (index1.texcoord_index < index2.texcoord_index) {
+      return true;
+    }
+
+    if (index1.texcoord_index > index2.texcoord_index) {
+      return false;
+    }
+
+    return false;
+  }
+}
+
 namespace osc {
 
 class Object final {
   std::vector<Eigen::Vector3f> vertices_;
-  std::vector<Eigen::Vector3f> normals_; // 頂点法線。面法線じゃありません。
-  std::vector<Eigen::Vector2f> textureCoordinates_;
   std::vector<Eigen::Vector3i> indices_;
 
   Eigen::Vector3f diffuse_;
 
 public:
-  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals, const std::vector<Eigen::Vector2f> &textureCoordinates, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), normals_(normals), textureCoordinates_(textureCoordinates), indices_(indices), diffuse_(diffuse) {
+  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), indices_(indices), diffuse_(diffuse) {
     ;
   }
 
   const auto &getVertices() const noexcept {
     return vertices_;
-  }
-
-  const auto &getNormals() const noexcept {
-    return normals_;
-  }
-
-  const auto &getTextureCoordinates() const noexcept {
-    return textureCoordinates_;
   }
 
   const auto &getIndices() const noexcept {
@@ -79,9 +99,9 @@ public:
         auto materialIds = std::set(std::begin(shape.mesh.material_ids), std::end(shape.mesh.material_ids));
 
         for (const auto &materialId : materialIds) {
+          auto knownIndices = std::map<tinyobj::index_t, int>{};
+
           auto vertices = std::vector<Eigen::Vector3f>{};
-          auto normals = std::vector<Eigen::Vector3f>{};
-          auto textureCoordinates = std::vector<Eigen::Vector2f>{};
           auto indices = std::vector<Eigen::Vector3i>{};
 
           for (auto i = 0; i < std::size(shape.mesh.material_ids); ++i) {
@@ -89,36 +109,32 @@ public:
               continue;
             }
 
-            auto localIndex = Eigen::Vector3i{};
+            indices.emplace_back([&] {
+              auto result = Eigen::Vector3i{};
 
-            for (auto j = 0; j < 3; ++j) {
-              const auto &index = shape.mesh.indices[i * 3 + j];
+              for (auto j = 0; j < 3; ++j) {
+                result[j] = [&] {
+                  const auto result = static_cast<int>(std::size(vertices));
 
-              const auto &vertex = Eigen::Vector3f{attrib.vertices[index.vertex_index * 3 + 0], attrib.vertices[index.vertex_index * 3 + 1], attrib.vertices[index.vertex_index * 3 + 2]};
+                  const auto &index = shape.mesh.indices[i * 3 + j];
 
-              localIndex[j] = [&] {
-                const auto it = std::find(std::begin(vertices), std::end(vertices), vertex);
+                  const auto [it, emplaced] = knownIndices.emplace(index, result);
 
-                if (it == std::end(vertices)) {
-                  vertices.emplace_back(vertex);
+                  if (!emplaced) {
+                    return it->second;
+                  }
 
-                  const auto &normal = Eigen::Vector3f(attrib.normals[index.normal_index * 3 + 0], attrib.normals[index.normal_index * 3 + 1], attrib.normals[index.normal_index * 3 + 2]);
-                  normals.emplace_back(normal);
+                  vertices.emplace_back(Eigen::Vector3f{attrib.vertices[index.vertex_index * 3 + 0], attrib.vertices[index.vertex_index * 3 + 1], attrib.vertices[index.vertex_index * 3 + 2]});
 
-                  const auto &textureCoordinate = Eigen::Vector2f(attrib.texcoords[index.texcoord_index * 2 + 0], attrib.texcoords[index.texcoord_index * 2 + 1]);
-                  textureCoordinates.emplace_back(textureCoordinate);
+                  return result;
+                }();
+              }
 
-                  return static_cast<int>(std::size(vertices)) - 1;
-                }
-
-                return static_cast<int>(std::distance(std::begin(vertices), it));
-              }();
-            }
-
-            indices.emplace_back(localIndex);
+              return result;
+            }());
           }
 
-          objects_.emplace_back(vertices, normals, textureCoordinates, indices, getRandomColor(materialId));
+          objects_.emplace_back(vertices, indices, getRandomColor(materialId));
         }
       }
     }();

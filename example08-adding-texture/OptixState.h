@@ -39,11 +39,13 @@ class OptixState final {
   CUstream stream_;
   OptixDeviceContext deviceContext_;
 
+  std::vector<cudaArray_t> textureArrays_;
+  std::vector<cudaTextureObject_t> textureObjects_;
+
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> verticesBuffers_;
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> normalsBuffers_;
   std::vector<common::DeviceVectorBuffer<Eigen::Vector2f>> textureCoordinatesBuffers_;
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3i>> indicesBuffers_;
-  std::vector<cudaTextureObject_t> textureObjects_;
 
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
@@ -118,6 +120,8 @@ public:
                                        texture.getImageSize().x() * sizeof(std::uint32_t),
                                        texture.getImageSize().y(),
                                        cudaMemcpyHostToDevice));
+
+        textureArrays_.emplace_back(textureArray);
 
         auto resourceDesc = [&] {
           auto result = cudaResourceDesc{};
@@ -493,7 +497,13 @@ public:
               result.triangleMeshes.textureCoordinates = reinterpret_cast<Eigen::Vector2f *>(textureCoordinatesBuffers_[i].getData());
               result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
               result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
-              result.triangleMeshes.textureObject = model.getObjects()[i].getDiffuseTextureIndex() >= 0 ? textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()] : 0;
+
+              if (model.getObjects()[i].getDiffuseTextureIndex() >= 0) {
+                result.triangleMeshes.hasTextureObject = true;
+                result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()];
+              } else {
+                result.triangleMeshes.hasTextureObject = false;
+              }
 
               return result;
             }());

@@ -15,6 +15,36 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+namespace std {
+  inline auto operator<(const tinyobj::index_t &index1, const tinyobj::index_t &index2) {
+    if (index1.vertex_index < index2.vertex_index) {
+      return true;
+    }
+
+    if (index1.vertex_index > index2.vertex_index) {
+      return false;
+    }
+
+    if (index1.normal_index < index2.normal_index) {
+      return true;
+    }
+
+    if (index1.normal_index > index2.normal_index) {
+      return false;
+    }
+
+    if (index1.texcoord_index < index2.texcoord_index) {
+      return true;
+    }
+
+    if (index1.texcoord_index > index2.texcoord_index) {
+      return false;
+    }
+
+    return false;
+  }
+}
+
 namespace osc {
 
 class Texture final {
@@ -120,9 +150,20 @@ public:
             return result;
           }();
 
-          auto image = stbi_load(imagePath.c_str(), &imageSize.x(), &imageSize.y(), &n, STBI_rgb_alpha);
+          auto image = reinterpret_cast<std::uint32_t *>(stbi_load(imagePath.c_str(), &imageSize.x(), &imageSize.y(), &n, STBI_rgb_alpha));
 
-          return Texture{std::vector<std::uint32_t>(reinterpret_cast<std::uint32_t *>(image), reinterpret_cast<std::uint32_t *>(image) + imageSize.x() * imageSize.y()), imageSize};
+          // テクスチャーは左下が原点らしいので、上下を反転させます。
+
+          for (auto y = 0; y < imageSize.y() / 2; ++y) {
+            auto line1 = image + imageSize.x() * y;
+            auto line2 = image + imageSize.x() * (imageSize.y() - 1 - y);
+
+            for (auto x = 0; x < imageSize.x(); ++x) {
+              std::swap(line1[x], line2[x]);
+            }
+          }
+
+          return Texture{std::vector<std::uint32_t>(image, image + imageSize.x() * imageSize.y()), imageSize};
         }());
       }
     }();
@@ -134,6 +175,8 @@ public:
         auto materialIds = std::set(std::begin(shape.mesh.material_ids), std::end(shape.mesh.material_ids));
 
         for (const auto &materialId : materialIds) {
+          auto knownIndices = std::map<tinyobj::index_t, int>{};
+
           auto vertices = std::vector<Eigen::Vector3f>{};
           auto normals = std::vector<Eigen::Vector3f>{};
           auto textureCoordinates = std::vector<Eigen::Vector2f>{};
@@ -144,33 +187,31 @@ public:
               continue;
             }
 
-            auto localIndex = Eigen::Vector3i{};
+            indices.emplace_back([&] {
+              auto result = Eigen::Vector3i{};
 
-            for (auto j = 0; j < 3; ++j) {
-              const auto &index = shape.mesh.indices[i * 3 + j];
+              for (auto j = 0; j < 3; ++j) {
+                result[j] = [&] {
+                  auto result = static_cast<int>(std::size(vertices));
 
-              const auto &vertex = Eigen::Vector3f{attrib.vertices[index.vertex_index * 3 + 0], attrib.vertices[index.vertex_index * 3 + 1], attrib.vertices[index.vertex_index * 3 + 2]};
+                  const auto &index = shape.mesh.indices[i * 3 + j];
 
-              localIndex[j] = [&] {
-                const auto it = std::find(std::begin(vertices), std::end(vertices), vertex);
+                  const auto [it, emplaced] = knownIndices.emplace(index, result);
 
-                if (it == std::end(vertices)) {
-                  vertices.emplace_back(vertex);
+                  if (!emplaced) {
+                    return it->second;
+                  }
 
-                  const auto &normal = Eigen::Vector3f(attrib.normals[index.normal_index * 3 + 0], attrib.normals[index.normal_index * 3 + 1], attrib.normals[index.normal_index * 3 + 2]);
-                  normals.emplace_back(normal);
+                  vertices.emplace_back(Eigen::Vector3f{attrib.vertices[index.vertex_index * 3 + 0], attrib.vertices[index.vertex_index * 3 + 1], attrib.vertices[index.vertex_index * 3 + 2]});
+                  normals.emplace_back(Eigen::Vector3f{attrib.normals[index.normal_index * 3 + 0], attrib.normals[index.normal_index * 3 + 1], attrib.normals[index.normal_index * 3 + 2]});
+                  textureCoordinates.emplace_back(Eigen::Vector2f{attrib.texcoords[index.texcoord_index * 2 + 0], attrib.texcoords[index.texcoord_index * 2 + 1]});
 
-                  const auto &textureCoordinate = Eigen::Vector2f(attrib.texcoords[index.texcoord_index * 2 + 0], attrib.texcoords[index.texcoord_index * 2 + 1]);
-                  textureCoordinates.emplace_back(textureCoordinate);
+                  return result;
+                }();
+              }
 
-                  return static_cast<int>(std::size(vertices)) - 1;
-                }
-
-                return static_cast<int>(std::distance(std::begin(vertices), it));
-              }();
-            }
-
-            indices.emplace_back(localIndex);
+              return result;
+            }());
           }
 
           objects_.emplace_back(vertices, normals, textureCoordinates, indices, *reinterpret_cast<Eigen::Vector3f *>(&materials[materialId].diffuse), textureIndices[materialId]);
