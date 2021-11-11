@@ -160,8 +160,8 @@ public:
                   const auto &normal = Eigen::Vector3f(attrib.normals[index.normal_index * 3 + 0], attrib.normals[index.normal_index * 3 + 1], attrib.normals[index.normal_index * 3 + 2]);
                   normals.emplace_back(normal);
 
-                  const auto &texcoord = Eigen::Vector2f(attrib.texcoords[index.texcoord_index * 2 + 0], attrib.texcoords[index.texcoord_index * 2 + 1]);
-                  textureCoordinates.emplace_back(texcoord);
+                  const auto &textureCoordinate = Eigen::Vector2f(attrib.texcoords[index.texcoord_index * 2 + 0], attrib.texcoords[index.texcoord_index * 2 + 1]);
+                  textureCoordinates.emplace_back(textureCoordinate);
 
                   return static_cast<int>(std::size(vertices)) - 1;
                 }

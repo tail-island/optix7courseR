@@ -154,7 +154,7 @@ public:
       }
     }();
 
-    // 後続処理のために、オブジェクトの各属性を抽出します。
+    // 後続処理のために、モデルのオブジェクトの各属性を抽出します。
 
     std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(verticesBuffers_), [](const Object &object) {
       return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getVertices()};

@@ -75,16 +75,16 @@ extern "C" __global__ void __raygen__renderFrame() {
 extern "C" __global__ void __closesthit__radiance() {
   const auto &triangleMeshes = reinterpret_cast<HitgroupData *>(optixGetSbtDataPointer())->triangleMeshes;
 
+  const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
+
   // ポリゴンの法線を取得します。
 
   const auto triangleMeshNormal = [&] {
-    const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
+    const auto &vertex1 = triangleMeshes.vertices[index.x()];
+    const auto &vertex2 = triangleMeshes.vertices[index.y()];
+    const auto &vertex3 = triangleMeshes.vertices[index.z()];
 
-    const auto &vector1 = triangleMeshes.vertices[index.x()];
-    const auto &vector2 = triangleMeshes.vertices[index.y()];
-    const auto &vector3 = triangleMeshes.vertices[index.z()];
-
-    return (vector2 - vector1).cross(vector3 - vector1).normalized();
+    return (vertex2 - vertex1).cross(vertex3 - vertex1).normalized();
   }();
 
   // レイの向きを取得します。
@@ -95,7 +95,7 @@ extern "C" __global__ void __closesthit__radiance() {
     return *reinterpret_cast<Eigen::Vector3f *>(&result);
   }();
 
-  // 色は、光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。カメラにライトが付いているとでも思って、納得してください……。
+  // 光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。カメラにライトが付いているとでも思って、納得してください……。
 
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = triangleMeshes.color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
 }
