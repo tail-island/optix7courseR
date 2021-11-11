@@ -47,21 +47,20 @@ public:
   }
 };
 
+inline auto getRandomColor(unsigned int seed) noexcept {
+  const auto r = seed * 13 * 17 + 0x234235;
+  const auto g = seed * 7 * 3 * 5 + 0x773477;
+  const auto b = seed * 11 * 19 + 0x223766;
+
+  return Eigen::Vector3f((r & 0x00ff) / 255.0f, (g & 0x00ff) / 255.0f, (b & 0x00ff) / 255.0f);
+}
+
 class Model final {
   std::vector<Object> objects_;
   Eigen::AlignedBox3f boundBox_;
 
-  static auto getRandomDiffuse(unsigned int seed) noexcept {
-    const auto r = seed * 13 * 17 + 0x234235;
-    const auto g = seed * 7 * 3 * 5 + 0x773477;
-    const auto b = seed * 11 * 19 + 0x223766;
-
-    return Eigen::Vector3f((r & 0x00ff) / 255.0f, (g & 0x00ff) / 255.0f, (b & 0x00ff) / 255.0f);
-  }
-
-  static auto createObjects(const std::string &path) noexcept {
-    auto result = std::vector<Object>{};
-
+public:
+  Model(const std::string &path) noexcept {
     auto attrib = tinyobj::attrib_t{};
     auto shapes = std::vector<tinyobj::shape_t>{};
     auto materials = std::vector<tinyobj::material_t>{};
@@ -72,6 +71,8 @@ class Model final {
       std::cerr << error << std::endl;
       std::exit(1);
     }
+
+    // オブジェクトを読み込みます。
 
     for (const auto &shape : shapes) {
       auto materialIds = std::set(std::begin(shape.mesh.material_ids), std::end(shape.mesh.material_ids));
@@ -116,28 +117,17 @@ class Model final {
           indices.emplace_back(localIndex);
         }
 
-        result.emplace_back(vertices, normals, texcoords, indices, getRandomDiffuse(materialId));
+        objects_.emplace_back(vertices, normals, texcoords, indices, getRandomColor(materialId));
       }
     }
 
-    return result;
-  }
+    // バウンド・ボックスを作成します。
 
-  static auto createBoundBox(const std::vector<Object> &objects) noexcept {
-    auto result = Eigen::AlignedBox3f{};
-
-    for (const auto &object : objects) {
+    for (const auto &object : objects_) {
       for (const auto &vertex : object.getVertices()) {
-        result.extend(vertex);
+        boundBox_.extend(vertex);
       }
     }
-
-    return result;
-  }
-
-public:
-  Model(const std::string &path) noexcept : objects_(createObjects(path)), boundBox_(createBoundBox(objects_)) {
-    ;
   }
 
   const auto &getObjects() const noexcept {
