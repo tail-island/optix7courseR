@@ -12,20 +12,19 @@ enum class RayType {
   Size
 };
 
+struct Camera {
+  float3 origin;
+  float3 u;
+  float3 v;
+  float3 w;
+};
+
 struct LaunchParams {
   std::uint32_t *imageBuffer;
-  OptixTraversableHandle traversableHandle;
-};
 
-struct Camera {
-  Eigen::Vector3f origin;
-  Eigen::Vector3f u;
-  Eigen::Vector3f v;
-  Eigen::Vector3f w;
-};
-
-struct RaygenData {
   Camera camera;
+
+  OptixTraversableHandle traversableHandle;
 };
 
 } // namespace osc

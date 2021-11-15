@@ -34,10 +34,13 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
 
-  const auto &camera = reinterpret_cast<RaygenData *>(optixGetSbtDataPointer())->camera;
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
 
-  auto origin = camera.origin;
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * camera.u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * camera.v + camera.w).normalized();
+  const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
+  const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
+  const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
+
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
 
   auto color = Eigen::Vector3f{0};
 
@@ -108,7 +111,7 @@ extern "C" __global__ void __closesthit__radiance() {
     return result.normalized();
   }();
 
-  // レイが衝突した場所を取得します。
+  // レイが衝突した場所（から、同じポリゴンに再衝突しないように法線方向に少しずらした場所）を取得します。
 
   auto hitPosition = [&] {
     return static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。
@@ -132,7 +135,7 @@ extern "C" __global__ void __closesthit__radiance() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&hitPosition),
       *reinterpret_cast<float3 *>(&lightDirection),
-      0.001f,
+      0.0f,
       1e20f,
       0.0f,
       OptixVisibilityMask(255),
@@ -145,7 +148,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // 色を設定します。光源が見えない場合でも、0.3の明るさで表示します。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * lightVisibility);
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * lightVisibility);
 }
 
 // 物体に光が衝突しそうな場合の処理？
@@ -160,16 +163,22 @@ extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
 }
 
+// 影を生成するためのレイが、物体に衝突した場合の処理。
+
 extern "C" __global__ void __closesthit__shadow() {
   ; // 影を生成するためのレイでは、何もしません。
 }
+
+// 影を生成するためのレイが、物体に衝突しそうな場合の処理？
 
 extern "C" __global__ void __anyhit__shadow() {
   ; // 影を生成するためのレイでは、何もしません。
 }
 
+// 影を生成するためのレイが、物体に衝突しなかった場合の処理。
+
 extern "C" __global__ void __miss__shadow() {
-  *reinterpret_cast<float *>(getPayloadPointer()) = 1; // 影のレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。
+  *reinterpret_cast<float *>(getPayloadPointer()) = 1; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。
 }
 
 } // namespace osc

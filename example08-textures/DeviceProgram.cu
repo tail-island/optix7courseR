@@ -34,10 +34,13 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
 
-  const auto &camera = reinterpret_cast<RaygenData *>(optixGetSbtDataPointer())->camera;
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
 
-  auto origin = camera.origin;
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * camera.u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * camera.v + camera.w).normalized();
+  const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
+  const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
+  const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
+
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
 
   auto color = Eigen::Vector3f{0};
 
@@ -47,15 +50,15 @@ extern "C" __global__ void __raygen__renderFrame() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&origin),
       *reinterpret_cast<float3 *>(&direction),
-      0.0f,                               // tmin
-      1e20f,                              // tmax
-      0.0f,                               // rayTime
-      OptixVisibilityMask(255),           //
-      OPTIX_RAY_FLAG_DISABLE_ANYHIT,      // rayFlags,
+      0.0f,                                // tmin
+      1e20f,                               // tmax
+      0.0f,                                // rayTime
+      OptixVisibilityMask(255),            //
+      OPTIX_RAY_FLAG_DISABLE_ANYHIT,       // rayFlags,
       static_cast<int>(RayType::Radiance), // SBToffset
-      static_cast<int>(RayType::Size),    // SBTstride
+      static_cast<int>(RayType::Size),     // SBTstride
       static_cast<int>(RayType::Radiance), // missSBTIndex
-      payloadParam0,                      // ペイロードではunsigned intしか使えません……。
+      payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
   const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。

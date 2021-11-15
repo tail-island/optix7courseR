@@ -44,10 +44,13 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
 
-  const auto &camera = reinterpret_cast<RaygenData *>(optixGetSbtDataPointer())->camera;
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
 
-  auto origin = camera.origin;
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * camera.u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * camera.v + camera.w).normalized();
+  const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
+  const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
+  const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
+
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
 
   auto color = Eigen::Vector3f{0};
 

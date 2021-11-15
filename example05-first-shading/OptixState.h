@@ -21,8 +21,6 @@ extern "C" const char DeviceProgram[];
 
 struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) RaygenRecord {
   char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-
-  Camera camera;
 };
 
 struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) HitgroupRecord {

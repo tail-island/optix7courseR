@@ -15,7 +15,7 @@ class Window final : public common::CameraWindow {
   auto setCamera() noexcept {
     const auto [u, v, w] = getUVW();
 
-    renderer_.setCamera(Camera{camera_.getFrom(), u, v, w});
+    renderer_.setCamera(Camera{*reinterpret_cast<const float3 *>(&camera_.getFrom()), *reinterpret_cast<const float3 *>(&u), *reinterpret_cast<const float3 *>(&v), *reinterpret_cast<const float3 *>(&w)});
   }
 
 public:

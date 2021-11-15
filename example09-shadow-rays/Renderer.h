@@ -20,6 +20,8 @@ class Renderer final {
   int height_;
 
   common::DeviceVectorBuffer<std::uint32_t> imageBuffer_;
+  Camera camera_;
+
   common::DeviceBuffer<LaunchParams> optixLaunchParamsBuffer_;
 
 public:
@@ -35,20 +37,11 @@ public:
   }
 
   auto setCamera(const Camera &camera) noexcept {
-    auto record = [&] {
-      auto result = RaygenRecord{};
-
-      optixSbtRecordPackHeader(optixState_.getRaygenProgramGroups()[0], &result);
-
-      return result;
-    }();
-    record.camera = camera;
-
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(optixState_.getShaderBindingTable().raygenRecord), &record, sizeof(RaygenRecord), cudaMemcpyHostToDevice)); // OptiXのサンプルだとこんな感じになっていたのですけど、カメラが2個になったらどうすればいいんだろ？
+    camera_ = camera;
   }
 
   auto render() noexcept {
-    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), {-907.108, 2205.875, -400.0267}, optixState_.getTraversableHandle()});
+    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), camera_, {-907.108, 2205.875, -400.0267}, optixState_.getTraversableHandle()});
 
     OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), optixLaunchParamsBuffer_.getData(), optixLaunchParamsBuffer_.getDataSize(), &optixState_.getShaderBindingTable(), width_, height_, 1));
 

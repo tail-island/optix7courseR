@@ -174,7 +174,7 @@ protected:
     v *= vlen;
     u *= ulen;
 
-    return std::make_tuple(u, v, w);
+    return std::make_tuple(static_cast<Eigen::Vector3f>(u), static_cast<Eigen::Vector3f>(v), static_cast<Eigen::Vector3f>(w)); // Eigenはできるだけ計算を遅らせるので、autoを使う場合でEigenの型を返したいならstatic_castが必要。
   }
 
   void mouseButton(int button, int action, int modifiers) noexcept override {
