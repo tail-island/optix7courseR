@@ -57,15 +57,15 @@ extern "C" __global__ void __raygen__renderFrame() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&origin),
       *reinterpret_cast<float3 *>(&direction),
-      0.0f,                               // tmin
-      1e20f,                              // tmax
-      0.0f,                               // rayTime
-      OptixVisibilityMask(255),           //
-      OPTIX_RAY_FLAG_DISABLE_ANYHIT,      // rayFlags,
-      static_cast<int>(RayType::Surface), // SBToffset
-      static_cast<int>(RayType::Size),    // SBTstride
-      static_cast<int>(RayType::Surface), // missSBTIndex
-      payloadParam0,                      // ペイロードではunsigned intしか使えません……。
+      0.0f,                                // tmin
+      1e20f,                               // tmax
+      0.0f,                                // rayTime
+      OptixVisibilityMask(255),            //
+      OPTIX_RAY_FLAG_DISABLE_ANYHIT,       // rayFlags,
+      static_cast<int>(RayType::Radiance), // SBToffset
+      static_cast<int>(RayType::Size),     // SBTstride
+      static_cast<int>(RayType::Radiance), // missSBTIndex
+      payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
   const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。

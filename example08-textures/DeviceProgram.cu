@@ -52,9 +52,9 @@ extern "C" __global__ void __raygen__renderFrame() {
       0.0f,                               // rayTime
       OptixVisibilityMask(255),           //
       OPTIX_RAY_FLAG_DISABLE_ANYHIT,      // rayFlags,
-      static_cast<int>(RayType::Surface), // SBToffset
+      static_cast<int>(RayType::Radiance), // SBToffset
       static_cast<int>(RayType::Size),    // SBTstride
-      static_cast<int>(RayType::Surface), // missSBTIndex
+      static_cast<int>(RayType::Radiance), // missSBTIndex
       payloadParam0,                      // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
@@ -75,13 +75,7 @@ extern "C" __global__ void __closesthit__radiance() {
   const auto u = optixGetTriangleBarycentrics().x;
   const auto v = optixGetTriangleBarycentrics().y;
 
-  // 法線を取得します。
-
-  const auto triangleMeshNormal = [&] {
-    return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
-  }();
-
-  // ポリゴンの色を取得します。
+  // レイが衝突した場所の色を取得します。
 
   const auto color = [&] {
     if (!triangleMeshes.hasTextureObject) {
@@ -92,6 +86,12 @@ extern "C" __global__ void __closesthit__radiance() {
     const auto textureColor = tex2D<float4>(triangleMeshes.textureObject, textureCoordinate.x(), textureCoordinate.y());
 
     return Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z};
+  }();
+
+  // レイが衝突した場所の法線を取得します。
+
+  const auto triangleMeshNormal = [&] {
+    return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
   }();
 
   // レイの向きを取得します。

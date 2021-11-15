@@ -187,8 +187,6 @@ public:
 
       auto result = std::vector<OptixProgramGroup>{1};
 
-      const auto programGroupOptions = OptixProgramGroupOptions{};
-
       const auto programGroupDesc = [&] {
         auto result = OptixProgramGroupDesc{};
 
@@ -200,6 +198,8 @@ public:
 
         return result;
       }();
+
+      const auto programGroupOptions = OptixProgramGroupOptions{};
 
       auto [log, logSize] = [&] {
         auto result = std::array<char, 2048>{};
@@ -223,8 +223,6 @@ public:
 
       auto result = std::vector<OptixProgramGroup>{1};
 
-      const auto programGroupOptions = OptixProgramGroupOptions{};
-
       const auto programGroupDesc = [&] {
         auto result = OptixProgramGroupDesc{};
 
@@ -234,6 +232,8 @@ public:
 
         return result;
       }();
+
+      const auto programGroupOptions = OptixProgramGroupOptions{};
 
       auto [log, logSize] = [&] {
         auto result = std::array<char, 2048>{};

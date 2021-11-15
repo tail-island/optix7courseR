@@ -8,7 +8,7 @@
 namespace osc {
 
 enum class RayType {
-  Surface,
+  Radiance,
   Size
 };
 

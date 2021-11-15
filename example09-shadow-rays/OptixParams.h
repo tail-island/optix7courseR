@@ -8,13 +8,14 @@
 namespace osc {
 
 enum class RayType {
-  Surface,
+  Radiance,
   Shadow,
   Size
 };
 
 struct LaunchParams {
   std::uint32_t *imageBuffer;
+  float3 lightPosition;
   OptixTraversableHandle traversableHandle;
 };
 

@@ -263,7 +263,7 @@ public:
       result.usesMotionBlur = false;
       result.numPayloadValues = 2;
       result.numAttributeValues = 2;
-      result.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
+      result.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG; // OPTIX_EXCEPTION_FLAG_NONE;
       result.pipelineLaunchParamsVariableName = "optixLaunchParams";
 
       return result;
@@ -355,19 +355,19 @@ public:
       auto result = std::vector<OptixProgramGroup>{static_cast<int>(RayType::Size)};
 
       [&] {
-        const auto programGroupOptions = OptixProgramGroupOptions{};
-
         const auto programGroupDesc = [&] {
           auto result = OptixProgramGroupDesc{};
 
           result.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
           result.hitgroup.moduleCH = module_;
-          result.hitgroup.entryFunctionNameCH = "__closesthit__surface";
+          result.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
           result.hitgroup.moduleAH = module_;
-          result.hitgroup.entryFunctionNameAH = "__anyhit__surface";
+          result.hitgroup.entryFunctionNameAH = "__anyhit__radiance";
 
           return result;
         }();
+
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
         auto [log, logSize] = [&] {
           auto result = std::array<char, 2048>{};
@@ -375,7 +375,7 @@ public:
           return std::make_tuple(result, std::size(result));
         }();
 
-        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Surface)]));
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Radiance)]));
 
         if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
           std::cerr << log.data() << "\n";
@@ -383,8 +383,6 @@ public:
       }();
 
       [&] {
-        const auto programGroupOptions = OptixProgramGroupOptions{};
-
         const auto programGroupDesc = [&] {
           auto result = OptixProgramGroupDesc{};
 
@@ -396,6 +394,8 @@ public:
 
           return result;
         }();
+
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
         auto [log, logSize] = [&] {
           auto result = std::array<char, 2048>{};
@@ -421,17 +421,17 @@ public:
       auto result = std::vector<OptixProgramGroup>{static_cast<int>(RayType::Size)};
 
       [&] {
-        const auto programGroupOptions = OptixProgramGroupOptions{};
-
         const auto programGroupDesc = [&] {
           auto result = OptixProgramGroupDesc{};
 
           result.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
           result.miss.module = module_;
-          result.miss.entryFunctionName = "__miss__surface";
+          result.miss.entryFunctionName = "__miss__radiance";
 
           return result;
         }();
+
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
         auto [log, logSize] = [&] {
           auto result = std::array<char, 2048>{};
@@ -439,7 +439,7 @@ public:
           return std::make_tuple(result, std::size(result));
         }();
 
-        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Surface)]));
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Radiance)]));
 
         if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
           std::cerr << log.data() << "\n";
