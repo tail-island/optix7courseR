@@ -294,11 +294,11 @@ public:
         const auto raygenRecords = [&] {
           auto result = std::vector<RaygenRecord>{};
 
-          for (const auto &prgoramGroup : raygenProgramGroups_) {
+          for (const auto &programGroup : raygenProgramGroups_) {
             result.emplace_back([&] {
               auto result = RaygenRecord{};
 
-              OPTIX_CHECK(optixSbtRecordPackHeader(prgoramGroup, &result));
+              OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
               return result;
             }());
@@ -321,11 +321,11 @@ public:
         const auto hitgroupRecords = [&] {
           auto result = std::vector<HitgroupRecord>{};
 
-          for (const auto &prgoramGroup : hitgroupProgramGroups_) {
+          for (const auto &programGroup : hitgroupProgramGroups_) {
             result.emplace_back([&] {
               auto result = HitgroupRecord{};
 
-              OPTIX_CHECK(optixSbtRecordPackHeader(prgoramGroup, &result));
+              OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
               return result;
             }());
@@ -351,11 +351,11 @@ public:
         const auto missRecords = [&] {
           auto result = std::vector<MissRecord>{};
 
-          for (const auto &prgoramGroup : missProgramGroups_) {
+          for (const auto &programGroup : missProgramGroups_) {
             result.emplace_back([&] {
               auto result = MissRecord{};
 
-              OPTIX_CHECK(optixSbtRecordPackHeader(prgoramGroup, &result));
+              OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
               return result;
             }());
