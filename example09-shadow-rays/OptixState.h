@@ -263,7 +263,7 @@ public:
       result.usesMotionBlur = false;
       result.numPayloadValues = 2;
       result.numAttributeValues = 2;
-      result.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG; // OPTIX_EXCEPTION_FLAG_NONE;
+      result.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
       result.pipelineLaunchParamsVariableName = "optixLaunchParams";
 
       return result;

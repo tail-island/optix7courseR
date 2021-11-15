@@ -13,9 +13,18 @@ enum class RayType {
   Size
 };
 
+// struct Camera {
+//   float3 origin;
+//   float3 u;
+//   float3 v;
+//   float3 w;
+// };
+
 struct LaunchParams {
   std::uint32_t *imageBuffer;
+
   float3 lightPosition;
+
   OptixTraversableHandle traversableHandle;
 };
 

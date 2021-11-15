@@ -47,15 +47,15 @@ extern "C" __global__ void __raygen__renderFrame() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&origin),
       *reinterpret_cast<float3 *>(&direction),
-      0.0f,                               // tmin
-      1e20f,                              // tmax
-      0.0f,                               // rayTime
-      OptixVisibilityMask(255),           //
-      OPTIX_RAY_FLAG_DISABLE_ANYHIT,      // rayFlags,
+      0.0f,                                // tmin
+      1e20f,                               // tmax
+      0.0f,                                // rayTime
+      OptixVisibilityMask(255),            //
+      OPTIX_RAY_FLAG_DISABLE_ANYHIT,       // rayFlags,
       static_cast<int>(RayType::Radiance), // SBToffset
-      static_cast<int>(RayType::Size),    // SBTstride
+      static_cast<int>(RayType::Size),     // SBTstride
       static_cast<int>(RayType::Radiance), // missSBTIndex
-      payloadParam0,                      // ペイロードではunsigned intしか使えません……。
+      payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
   const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
@@ -111,7 +111,7 @@ extern "C" __global__ void __closesthit__radiance() {
   // レイが衝突した場所を取得します。
 
   auto hitPosition = [&] {
-    return static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f);  // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。
+    return static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。
   }();
 
   // レイが衝突した場所から光源への方向を取得します。
@@ -141,8 +141,7 @@ extern "C" __global__ void __closesthit__radiance() {
       static_cast<int>(RayType::Size),
       static_cast<int>(RayType::Shadow),
       payloadParam0,
-      payloadParam1
-  );
+      payloadParam1);
 
   // 色を設定します。光源が見えない場合でも、0.3の明るさで表示します。
 

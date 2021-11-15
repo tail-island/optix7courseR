@@ -90,7 +90,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // レイが衝突した場所の法線を取得します。
 
-  const auto triangleMeshNormal = [&] {
+  const auto normal = [&] {
     return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
   }();
 
@@ -104,7 +104,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // 光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。カメラにライトが付いているとでも思って、納得してください……。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * std::fabs(normal.dot(rayDirection)));
 }
 
 // 物体に光が衝突しそうな場合の処理？
