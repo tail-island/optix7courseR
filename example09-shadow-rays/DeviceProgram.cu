@@ -16,11 +16,6 @@ extern "C" {
 __constant__ LaunchParams optixLaunchParams;
 }
 
-enum { // TODO: enum classに書き換える。
-  SURFACE_RAY_TYPE = 0,
-  RAY_TYPE_COUNT
-};
-
 // OptiXのペイロードはunsigned int×n個で扱いづらいので、構造体へのポインタに変換します。
 
 inline __device__ auto getPayloadParams(void *payloadPointer) noexcept {
@@ -52,15 +47,15 @@ extern "C" __global__ void __raygen__renderFrame() {
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&origin),
       *reinterpret_cast<float3 *>(&direction),
-      0.0f,                          // tmin
-      1e20f,                         // tmax
-      0.0f,                          // rayTime
-      OptixVisibilityMask(255),      //
-      OPTIX_RAY_FLAG_DISABLE_ANYHIT, // rayFlags,
-      SURFACE_RAY_TYPE,              // SBToffset
-      RAY_TYPE_COUNT,                // SBTstride
-      SURFACE_RAY_TYPE,              // missSBTIndex
-      payloadParam0,                 // ペイロードではunsigned intしか使えません……。
+      0.0f,                               // tmin
+      1e20f,                              // tmax
+      0.0f,                               // rayTime
+      OptixVisibilityMask(255),           //
+      OPTIX_RAY_FLAG_DISABLE_ANYHIT,      // rayFlags,
+      static_cast<int>(RayType::Surface), // SBToffset
+      static_cast<int>(RayType::Size),    // SBTstride
+      static_cast<int>(RayType::Surface), // missSBTIndex
+      payloadParam0,                      // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
   const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
@@ -72,7 +67,7 @@ extern "C" __global__ void __raygen__renderFrame() {
 
 // 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
 
-extern "C" __global__ void __closesthit__radiance() {
+extern "C" __global__ void __closesthit__surface() {
   const auto &triangleMeshes = reinterpret_cast<HitgroupData *>(optixGetSbtDataPointer())->triangleMeshes;
 
   const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
@@ -114,14 +109,26 @@ extern "C" __global__ void __closesthit__radiance() {
 
 // 物体に光が衝突しそうな場合の処理？
 
-extern "C" __global__ void __anyhit__radiance() {
-  ; // とりあえず、なにもしません。
+extern "C" __global__ void __anyhit__surface() {
+  ; // 表面の色彩のためのレイでは、何もしません。
 }
 
 // トレースした光が物体に衝突しなかった場合の処理です。
 
-extern "C" __global__ void __miss__radiance() {
+extern "C" __global__ void __miss__surface() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
+}
+
+extern "C" __global__ void __closesthit__shadow() {
+  ; // 影を生成するためのレイでは、何もしません。
+}
+
+extern "C" __global__ void __anyhit__shadow() {
+  ; // 影を生成するためのレイでは、何もしません。
+}
+
+extern "C" __global__ void __miss__shadow() {
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // 影のレイが何にもぶつからなかった＝光源に辿り着けた＝明るさマックス。
 }
 
 } // namespace osc

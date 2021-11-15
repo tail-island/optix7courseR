@@ -1,4 +1,4 @@
-set(TARGET example08-adding-texture)
+set(TARGET example08-textures)
 
 # PTXファイルを作成します。
 

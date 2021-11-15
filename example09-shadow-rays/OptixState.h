@@ -39,8 +39,14 @@ class OptixState final {
   CUstream stream_;
   OptixDeviceContext deviceContext_;
 
+  std::vector<cudaArray_t> textureArrays_;
+  std::vector<cudaTextureObject_t> textureObjects_;
+
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> verticesBuffers_;
+  std::vector<common::DeviceVectorBuffer<Eigen::Vector3f>> normalsBuffers_;
+  std::vector<common::DeviceVectorBuffer<Eigen::Vector2f>> textureCoordinatesBuffers_;
   std::vector<common::DeviceVectorBuffer<Eigen::Vector3i>> indicesBuffers_;
+
   common::DeviceVectorBuffer<std::uint8_t> traversableBuffer_;
   OptixTraversableHandle traversableHandle_;
 
@@ -97,10 +103,73 @@ public:
       return result;
     }();
 
+    // テクスチャーを作成します。
+
+    [&] {
+      for (const auto &texture : model.getTextures()) {
+        auto textureArray = cudaArray_t{};
+        auto channelDesc = cudaCreateChannelDesc<uchar4>();
+
+        CUDA_CHECK(cudaMallocArray(&textureArray, &channelDesc, texture.getImageSize().x(), texture.getImageSize().y()));
+
+        CUDA_CHECK(cudaMemcpy2DToArray(textureArray,
+                                       0,
+                                       0,
+                                       texture.getImage().data(),
+                                       texture.getImageSize().x() * sizeof(std::uint32_t),
+                                       texture.getImageSize().x() * sizeof(std::uint32_t),
+                                       texture.getImageSize().y(),
+                                       cudaMemcpyHostToDevice));
+
+        textureArrays_.emplace_back(textureArray);
+
+        auto resourceDesc = [&] {
+          auto result = cudaResourceDesc{};
+
+          result.resType = cudaResourceTypeArray;
+          result.res.array.array = textureArray;
+
+          return result;
+        }();
+
+        auto textureDesc = [&] {
+          auto result = cudaTextureDesc{};
+
+          result.addressMode[0] = cudaAddressModeWrap;
+          result.addressMode[1] = cudaAddressModeWrap;
+          result.filterMode = cudaFilterModeLinear;
+          result.readMode = cudaReadModeNormalizedFloat;
+          result.normalizedCoords = 1;
+          result.maxAnisotropy = 1;
+          result.maxMipmapLevelClamp = 99;
+          result.minMipmapLevelClamp = 0;
+          result.mipmapFilterMode = cudaFilterModePoint;
+          result.borderColor[0] = 1.0f;
+          result.sRGB = 0;
+
+          return result;
+        }();
+
+        auto textureObject = cudaTextureObject_t{};
+
+        CUDA_CHECK(cudaCreateTextureObject(&textureObject, &resourceDesc, &textureDesc, nullptr));
+
+        textureObjects_.emplace_back(textureObject);
+      }
+    }();
+
     // 後続処理のために、モデルのオブジェクトの各属性を抽出します。
 
     std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(verticesBuffers_), [](const Object &object) {
       return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getVertices()};
+    });
+
+    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(normalsBuffers_), [](const Object &object) {
+      return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getNormals()};
+    });
+
+    std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(textureCoordinatesBuffers_), [](const Object &object) {
+      return common::DeviceVectorBuffer<Eigen::Vector2f>{object.getTextureCoordinates()};
     });
 
     std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(indicesBuffers_), [](const Object &object) {
@@ -283,33 +352,63 @@ public:
     hitgroupProgramGroups_ = [&] {
       std::cout << "#osc: creating HitgroupProgramGroups...\n";
 
-      auto result = std::vector<OptixProgramGroup>{1};
+      auto result = std::vector<OptixProgramGroup>{static_cast<int>(RayType::Size)};
 
-      const auto programGroupOptions = OptixProgramGroupOptions{};
+      [&] {
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
-      const auto programGroupDesc = [&] {
-        auto result = OptixProgramGroupDesc{};
+        const auto programGroupDesc = [&] {
+          auto result = OptixProgramGroupDesc{};
 
-        result.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-        result.hitgroup.moduleCH = module_;
-        result.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
-        result.hitgroup.moduleAH = module_;
-        result.hitgroup.entryFunctionNameAH = "__anyhit__radiance";
+          result.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+          result.hitgroup.moduleCH = module_;
+          result.hitgroup.entryFunctionNameCH = "__closesthit__surface";
+          result.hitgroup.moduleAH = module_;
+          result.hitgroup.entryFunctionNameAH = "__anyhit__surface";
 
-        return result;
+          return result;
+        }();
+
+        auto [log, logSize] = [&] {
+          auto result = std::array<char, 2048>{};
+
+          return std::make_tuple(result, std::size(result));
+        }();
+
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Surface)]));
+
+        if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
+          std::cerr << log.data() << "\n";
+        }
       }();
 
-      auto [log, logSize] = [&] {
-        auto result = std::array<char, 2048>{};
+      [&] {
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
-        return std::make_tuple(result, std::size(result));
+        const auto programGroupDesc = [&] {
+          auto result = OptixProgramGroupDesc{};
+
+          result.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+          result.hitgroup.moduleCH = module_;
+          result.hitgroup.entryFunctionNameCH = "__closesthit__shadow";
+          result.hitgroup.moduleAH = module_;
+          result.hitgroup.entryFunctionNameAH = "__anyhit__shadow";
+
+          return result;
+        }();
+
+        auto [log, logSize] = [&] {
+          auto result = std::array<char, 2048>{};
+
+          return std::make_tuple(result, std::size(result));
+        }();
+
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Shadow)]));
+
+        if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
+          std::cerr << log.data() << "\n";
+        }
       }();
-
-      OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[0]));
-
-      if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
-        std::cerr << log.data() << "\n";
-      }
 
       return result;
     }();
@@ -319,31 +418,59 @@ public:
     missProgramGroups_ = [&] {
       std::cout << "#osc: creating MissProgramGroups...\n";
 
-      auto result = std::vector<OptixProgramGroup>{1};
+      auto result = std::vector<OptixProgramGroup>{static_cast<int>(RayType::Size)};
 
-      const auto programGroupOptions = OptixProgramGroupOptions{};
+      [&] {
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
-      const auto programGroupDesc = [&] {
-        auto result = OptixProgramGroupDesc{};
+        const auto programGroupDesc = [&] {
+          auto result = OptixProgramGroupDesc{};
 
-        result.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
-        result.miss.module = module_;
-        result.miss.entryFunctionName = "__miss__radiance";
+          result.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
+          result.miss.module = module_;
+          result.miss.entryFunctionName = "__miss__surface";
 
-        return result;
+          return result;
+        }();
+
+        auto [log, logSize] = [&] {
+          auto result = std::array<char, 2048>{};
+
+          return std::make_tuple(result, std::size(result));
+        }();
+
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Surface)]));
+
+        if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
+          std::cerr << log.data() << "\n";
+        }
       }();
 
-      auto [log, logSize] = [&] {
-        auto result = std::array<char, 2048>{};
+      [&] {
+        const auto programGroupOptions = OptixProgramGroupOptions{};
 
-        return std::make_tuple(result, std::size(result));
+        const auto programGroupDesc = [&] {
+          auto result = OptixProgramGroupDesc{};
+
+          result.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
+          result.miss.module = module_;
+          result.miss.entryFunctionName = "__miss__shadow";
+
+          return result;
+        }();
+
+        auto [log, logSize] = [&] {
+          auto result = std::array<char, 2048>{};
+
+          return std::make_tuple(result, std::size(result));
+        }();
+
+        OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[static_cast<int>(RayType::Shadow)]));
+
+        if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
+          std::cerr << log.data() << "\n";
+        }
       }();
-
-      OPTIX_CHECK(optixProgramGroupCreate(deviceContext_, &programGroupDesc, 1, &programGroupOptions, log.data(), &logSize, &result[0]));
-
-      if (logSize > 1) { // 文字列の終端の'\0'があるので、１文字以上になります。
-        std::cerr << log.data() << "\n";
-      }
 
       return result;
     }();
@@ -427,8 +554,17 @@ public:
                 OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
                 result.triangleMeshes.vertices = reinterpret_cast<Eigen::Vector3f *>(verticesBuffers_[i].getData());
+                result.triangleMeshes.normals = reinterpret_cast<Eigen::Vector3f *>(normalsBuffers_[i].getData());
+                result.triangleMeshes.textureCoordinates = reinterpret_cast<Eigen::Vector2f *>(textureCoordinatesBuffers_[i].getData());
                 result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
                 result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
+
+                if (model.getObjects()[i].getDiffuseTextureIndex() >= 0) {
+                  result.triangleMeshes.hasTextureObject = true;
+                  result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()];
+                } else {
+                  result.triangleMeshes.hasTextureObject = false;
+                }
 
                 return result;
               }());

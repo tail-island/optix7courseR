@@ -461,13 +461,15 @@ public:
         const auto raygenRecords = [&] {
           auto result = std::vector<RaygenRecord>{};
 
-          result.emplace_back([&] {
-            auto result = RaygenRecord{};
+          for (const auto &programGroup : raygenProgramGroups_) {
+            result.emplace_back([&] {
+              auto result = RaygenRecord{};
 
-            OPTIX_CHECK(optixSbtRecordPackHeader(raygenProgramGroups_[0], &result));
+              OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
-            return result;
-          }());
+              return result;
+            }());
+          }
 
           return result;
         }();
@@ -487,26 +489,28 @@ public:
           auto result = std::vector<HitgroupRecord>{};
 
           for (auto i = 0; i < static_cast<int>(std::size(model.getObjects())); ++i) {
-            result.emplace_back([&] {
-              auto result = HitgroupRecord{};
+            for (const auto &programGroup : hitgroupProgramGroups_) {
+              result.emplace_back([&] {
+                auto result = HitgroupRecord{};
 
-              OPTIX_CHECK(optixSbtRecordPackHeader(hitgroupProgramGroups_[0], &result));
+                OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
-              result.triangleMeshes.vertices = reinterpret_cast<Eigen::Vector3f *>(verticesBuffers_[i].getData());
-              result.triangleMeshes.normals = reinterpret_cast<Eigen::Vector3f *>(normalsBuffers_[i].getData());
-              result.triangleMeshes.textureCoordinates = reinterpret_cast<Eigen::Vector2f *>(textureCoordinatesBuffers_[i].getData());
-              result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
-              result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
+                result.triangleMeshes.vertices = reinterpret_cast<Eigen::Vector3f *>(verticesBuffers_[i].getData());
+                result.triangleMeshes.normals = reinterpret_cast<Eigen::Vector3f *>(normalsBuffers_[i].getData());
+                result.triangleMeshes.textureCoordinates = reinterpret_cast<Eigen::Vector2f *>(textureCoordinatesBuffers_[i].getData());
+                result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
+                result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
 
-              if (model.getObjects()[i].getDiffuseTextureIndex() >= 0) {
-                result.triangleMeshes.hasTextureObject = true;
-                result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()];
-              } else {
-                result.triangleMeshes.hasTextureObject = false;
-              }
+                if (model.getObjects()[i].getDiffuseTextureIndex() >= 0) {
+                  result.triangleMeshes.hasTextureObject = true;
+                  result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()];
+                } else {
+                  result.triangleMeshes.hasTextureObject = false;
+                }
 
-              return result;
-            }());
+                return result;
+              }());
+            }
           }
 
           return result;
@@ -529,13 +533,15 @@ public:
         const auto missRecords = [&] {
           auto result = std::vector<MissRecord>{};
 
-          result.emplace_back([&] {
-            auto result = MissRecord{};
+          for (const auto &programGroup : missProgramGroups_) {
+            result.emplace_back([&] {
+              auto result = MissRecord{};
 
-            OPTIX_CHECK(optixSbtRecordPackHeader(missProgramGroups_[0], &result));
+              OPTIX_CHECK(optixSbtRecordPackHeader(programGroup, &result));
 
-            return result;
-          }());
+              return result;
+            }());
+          }
 
           return result;
         }();

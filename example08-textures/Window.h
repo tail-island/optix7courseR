@@ -24,6 +24,8 @@ public:
   }
 
   void resize(const Eigen::Vector2i &size) noexcept override {
+    setCamera();
+
     renderer_.resize(size.x(), size.y());
   }
 

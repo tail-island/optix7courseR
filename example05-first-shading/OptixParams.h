@@ -7,6 +7,11 @@
 
 namespace osc {
 
+enum class RayType {
+  Surface,
+  Size
+};
+
 struct LaunchParams {
   std::uint32_t *imageBuffer;
   OptixTraversableHandle traversableHandle;

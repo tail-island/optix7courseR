@@ -246,19 +246,5 @@ public:
   }
 };
 
-inline auto createUVW(const Eigen::Vector3f &from, const Eigen::Vector3f &at, const Eigen::Vector3f &up, float fov, float aspectRatio) noexcept {
-  auto w = at - from;
-  auto u = w.cross(up).normalized();
-  auto v = u.cross(w).normalized();
-
-  const auto vlen = w.norm() * tanf(0.5f * fov * static_cast<float>(M_PI) / 180.0f);
-  const auto ulen = vlen * aspectRatio;
-
-  v *= vlen;
-  u *= ulen;
-
-  return std::make_tuple(u, v, w);
-}
-
 } // namespace common
 } // namespace osc

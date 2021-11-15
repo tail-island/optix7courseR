@@ -72,14 +72,26 @@ extern "C" __global__ void __closesthit__radiance() {
 
   const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
 
-  // ポリゴンの法線を取得します。
+  const auto u = optixGetTriangleBarycentrics().x;
+  const auto v = optixGetTriangleBarycentrics().y;
+
+  // 法線を取得します。
 
   const auto triangleMeshNormal = [&] {
-    const auto &vertex1 = triangleMeshes.vertices[index.x()];
-    const auto &vertex2 = triangleMeshes.vertices[index.y()];
-    const auto &vertex3 = triangleMeshes.vertices[index.z()];
+    return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
+  }();
 
-    return (vertex2 - vertex1).cross(vertex3 - vertex1).normalized();
+  // ポリゴンの色を取得します。
+
+  const auto color = [&] {
+    if (!triangleMeshes.hasTextureObject) {
+      return triangleMeshes.color;
+    }
+
+    const auto textureCoordinate = (1 - u - v) * triangleMeshes.textureCoordinates[index.x()] + u * triangleMeshes.textureCoordinates[index.y()] + v * triangleMeshes.textureCoordinates[index.z()];
+    const auto textureColor = tex2D<float4>(triangleMeshes.textureObject, textureCoordinate.x(), textureCoordinate.y());
+
+    return Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z};
   }();
 
   // レイの向きを取得します。
@@ -92,7 +104,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // 光源とかはとりあえず考慮しないで、レイとポリゴンが垂直なほど明るくなるということで。カメラにライトが付いているとでも思って、納得してください……。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = triangleMeshes.color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * std::fabs(triangleMeshNormal.dot(rayDirection)));
 }
 
 // 物体に光が衝突しそうな場合の処理？
