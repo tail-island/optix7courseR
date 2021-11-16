@@ -120,16 +120,16 @@ extern "C" __global__ void __closesthit__radiance() {
   // レイが衝突した場所から光源への方向を取得します。
 
   auto lightDirection = [&] {
-    return static_cast<Eigen::Vector3f>(*reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.lightPosition) - hitPosition);
+    return static_cast<Eigen::Vector3f>((*reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.lightPosition) - hitPosition).normalized());
   }();
 
   // レイが衝突した場所から光源が見えるかを表現する変数を用意します。この値を、optixTraceして設定します。
 
-  float lightVisibility = 0.0f;
+  bool isLightVisible = false;
 
   // 影を生成するためのレイを使用して、optixTraceします。
 
-  auto [payloadParam0, payloadParam1] = getPayloadParams(&lightVisibility);
+  auto [payloadParam0, payloadParam1] = getPayloadParams(&isLightVisible);
 
   optixTrace(
       optixLaunchParams.traversableHandle,
@@ -148,7 +148,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // 色を設定します。光源が見えない場合でも、0.3の明るさで表示します。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * lightVisibility);
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * (isLightVisible ? std::abs(normal.dot(lightDirection)) : 0));
 }
 
 // 物体に光が衝突しそうな場合の処理？
@@ -178,7 +178,7 @@ extern "C" __global__ void __anyhit__shadow() {
 // 影を生成するためのレイが、物体に衝突しなかった場合の処理。
 
 extern "C" __global__ void __miss__shadow() {
-  *reinterpret_cast<float *>(getPayloadPointer()) = 1; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。
+  *reinterpret_cast<bool *>(getPayloadPointer()) = true; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。
 }
 
 } // namespace osc
