@@ -2,7 +2,7 @@
 #include "Window.h"
 
 int main(int argc, char **argv) {
-  auto model = [] {
+  const auto model = [] {
     auto result = osc::Model{};
 
     // 地面。

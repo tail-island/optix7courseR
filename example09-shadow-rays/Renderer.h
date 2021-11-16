@@ -20,12 +20,13 @@ class Renderer final {
   int height_;
 
   common::DeviceVectorBuffer<std::uint32_t> imageBuffer_;
+  Eigen::Vector3f lightPosition_;
   Camera camera_;
 
   common::DeviceBuffer<LaunchParams> optixLaunchParamsBuffer_;
 
 public:
-  Renderer(const Model &model) noexcept : optixState_{0, model}, width_{0}, height_{0}, imageBuffer_{static_cast<std::size_t>(width_ * height_)}, optixLaunchParamsBuffer_{} {
+  Renderer(const Model &model, const Eigen::Vector3f &lightPosition) noexcept : optixState_{0, model}, width_{0}, height_{0}, imageBuffer_{static_cast<std::size_t>(width_ * height_)}, lightPosition_{lightPosition}, camera_{}, optixLaunchParamsBuffer_{} {
     ;
   }
 
@@ -41,7 +42,7 @@ public:
   }
 
   auto render() noexcept {
-    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), camera_, {-907.108, 2205.875, -400.0267}, optixState_.getTraversableHandle()});
+    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), *reinterpret_cast<float3 *>(&lightPosition_), camera_, optixState_.getTraversableHandle()});
 
     OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), optixLaunchParamsBuffer_.getData(), optixLaunchParamsBuffer_.getDataSize(), &optixState_.getShaderBindingTable(), width_, height_, 1));
 

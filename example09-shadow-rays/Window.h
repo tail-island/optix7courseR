@@ -19,7 +19,7 @@ class Window final : public common::CameraWindow {
   }
 
 public:
-  Window(const std::string &title, const common::Camera &camera, const Model &model) noexcept : common::CameraWindow{title, camera}, renderer_{model} {
+  Window(const std::string &title, const common::Camera &camera, const Model &model, const Eigen::Vector3f &lightPosition) noexcept : common::CameraWindow{title, camera}, renderer_{model, lightPosition} {
     setCamera();
   }
 

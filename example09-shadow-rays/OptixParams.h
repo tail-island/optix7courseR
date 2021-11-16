@@ -23,8 +23,8 @@ struct Camera {
 struct LaunchParams {
   std::uint32_t *imageBuffer;
 
-  Camera camera;
   float3 lightPosition;
+  Camera camera;
 
   OptixTraversableHandle traversableHandle;
 };
