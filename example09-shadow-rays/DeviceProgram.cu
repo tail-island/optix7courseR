@@ -119,24 +119,23 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // レイが衝突した場所から光源への方向を取得します。
 
-  auto lightDirection = [&] {
-    return static_cast<Eigen::Vector3f>((*reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.lightPosition) - hitPosition).normalized());
+  auto toLight = [&] {
+    return static_cast<Eigen::Vector3f>(*reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.lightPosition) - hitPosition);
   }();
 
-  // レイが衝突した場所から光源が見えるかを表現する変数を用意します。この値を、optixTraceして設定します。
+  // レイが衝突した場所から光源が見えるかを表現する変数を用意します。この値をoptixTraceして設定します。
 
-  bool isLightVisible = false;
+  auto isLightVisible = false;
+  auto [payloadParam0, payloadParam1] = getPayloadParams(&isLightVisible);
 
   // 影を生成するためのレイを使用して、optixTraceします。
-
-  auto [payloadParam0, payloadParam1] = getPayloadParams(&isLightVisible);
 
   optixTrace(
       optixLaunchParams.traversableHandle,
       *reinterpret_cast<float3 *>(&hitPosition),
-      *reinterpret_cast<float3 *>(&lightDirection),
+      *reinterpret_cast<float3 *>(&toLight),
       0.0f,
-      1e20f,
+      1.0f,  // toLightの距離までしかトレースしないようにします。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
       0.0f,
       OptixVisibilityMask(255),
       OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT,
@@ -148,7 +147,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // 色を設定します。光源が見えない場合でも、0.3の明るさで表示します。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * (isLightVisible ? std::abs(normal.dot(lightDirection)) : 0));
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * (isLightVisible ? std::abs(normal.dot(toLight.normalized())) : 0));
 }
 
 // 物体に光が衝突しそうな場合の処理？

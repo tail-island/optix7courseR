@@ -38,23 +38,30 @@ inline __device__ auto getRandomColor(unsigned int seed) noexcept {
   return Eigen::Vector3f((r & 0x00ff) / 255.0f, (g & 0x00ff) / 255.0f, (b & 0x00ff) / 255.0f);
 }
 
-// 光を生成します。
+// レイを生成します。
 
 extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
 
-  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
+  // カメラの情報を取得します。
+
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);  // optixTraceの都合で、const autoに出来ない……。
 
   const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
   const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
 
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
+  // レイの方向を計算します。
+
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();  // optixTraceの都合で、const autoに出来ない……。
+
+  // ピクセルの色を表現する変数を用意します。この値をoptixTraceして設定します。
 
   auto color = Eigen::Vector3f{0};
+  auto [payloadParam0, payloadParam1] = getPayloadParams(&color);  // optixTraceの都合で、const autoに出来ない……。
 
-  auto [payloadParam0, payloadParam1] = getPayloadParams(&color);
+  // optixTraceして、レイをトレースします。
 
   optixTrace(
       optixLaunchParams.traversableHandle,
@@ -71,6 +78,8 @@ extern "C" __global__ void __raygen__renderFrame() {
       payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
+  // optixTraceで設定されたcolorを使用して、イメージ・バッファーに値を設定します。
+
   const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
   const auto g = static_cast<int>(255.5 * color.y());
   const auto b = static_cast<int>(255.5 * color.z());
@@ -78,19 +87,19 @@ extern "C" __global__ void __raygen__renderFrame() {
   optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = r << 0 | g << 8 | b << 16 | 0xff000000;
 }
 
-// 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
+// 物体にレイが衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
 
 extern "C" __global__ void __closesthit__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = getRandomColor(optixGetPrimitiveIndex()); // とりあえず、光が衝突したポリゴンのインデックスをシードにして、ランダムな色を割り当てます。
 }
 
-// 物体に光が衝突しそうな場合の処理？
+// 物体にレイが衝突しそうな場合の処理？
 
 extern "C" __global__ void __anyhit__radiance() {
   ; // とりあえず、なにもしません。
 }
 
-// トレースした光が物体に衝突しなかった場合の処理です。
+// レイが物体に衝突しなかった場合の処理です。
 
 extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
