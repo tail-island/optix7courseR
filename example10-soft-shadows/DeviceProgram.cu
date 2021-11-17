@@ -61,7 +61,7 @@ extern "C" __global__ void __raygen__renderFrame() {
     auto result = Eigen::Vector3f{0, 0, 0};
 
     for (auto i = 0; i < PIXEL_SAMPLE_SIZE; ++i) {
-      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
+      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized(); // ランダムを追加します。
 
       auto payload = RadiancePayload{Eigen::Vector3f{0, 0, 0}, &curandState};
       auto [payloadParam0, payloadParam1] = getPayloadParams(&payload);
