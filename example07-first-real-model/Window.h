@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <Eigen/Core>
+
 #include "../common/Window.h"
 #include "Renderer.h"
 
@@ -29,7 +31,7 @@ public:
     renderer_.resize(size.x(), size.y());
   }
 
-  std::vector<std::uint32_t> render() noexcept override {
+  std::vector<Eigen::Vector4f> render() noexcept override {
     if (isCameraMoved_) {
       setCamera();
 

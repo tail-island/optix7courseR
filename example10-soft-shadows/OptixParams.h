@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include <cuda_runtime.h>
 #include <Eigen/Core>
 #include <optix.h>
 
@@ -28,7 +29,7 @@ struct Camera {
 };
 
 struct LaunchParams {
-  std::uint32_t *imageBuffer;
+  float4 *imageBuffer;
   int frameId;
 
   Light light;

@@ -1,4 +1,4 @@
-set(TARGET example10-soft-shadows)
+set(TARGET example11-accumulate)
 
 # PTXファイルを作成します。
 

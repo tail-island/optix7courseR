@@ -11,8 +11,8 @@
 
 #include "OptixParams.h"
 
-#define PIXEL_SAMPLE_SIZE 16
-#define LIGHT_SAMPLE_SIZE 1
+#define PIXEL_SAMPLE_SIZE 1
+#define LIGHT_SAMPLE_SIZE 4
 
 namespace osc {
 
@@ -84,14 +84,15 @@ extern "C" __global__ void __raygen__renderFrame() {
       result += payload.color / PIXEL_SAMPLE_SIZE;
     }
 
+    if (optixLaunchParams.frameId > 0) {
+      result += optixLaunchParams.frameId * *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x]);
+      result /= optixLaunchParams.frameId + 1;
+    }
+
     return result;
   }();
 
-  const auto r = static_cast<int>(255.5 * std::min(color.x(), 1.0f)); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
-  const auto g = static_cast<int>(255.5 * std::min(color.y(), 1.0f));
-  const auto b = static_cast<int>(255.5 * std::min(color.z(), 1.0f));
-
-  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = r << 0 | g << 8 | b << 16 | 0xff000000;
+  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float4{color.x(), color.y(), color.z(), 1};
 }
 
 // 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。

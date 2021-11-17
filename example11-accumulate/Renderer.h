@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <vector>
 
+#include <cuda_runtime.h>
+#include <Eigen/Core>
+
 #include "../common/DeviceBuffer.h"
 #include "../common/DeviceVectorBuffer.h"
 #include "../common/Util.h"
@@ -19,7 +22,7 @@ class Renderer final {
   int width_;
   int height_;
 
-  common::DeviceVectorBuffer<std::uint32_t> imageBuffer_;
+  common::DeviceVectorBuffer<Eigen::Vector4f> imageBuffer_;
   int frameId_;
   Light light_;
   Camera camera_;
@@ -36,14 +39,18 @@ public:
     height_ = height;
 
     imageBuffer_.setSize(width * height);
+
+    frameId_ = 0;
   }
 
   auto setCamera(const Camera &camera) noexcept {
     camera_ = camera;
+
+    frameId_ = 0;
   }
 
   auto render() noexcept {
-    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData()), frameId_, light_, camera_, optixState_.getTraversableHandle()});
+    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<float4 *>(imageBuffer_.getData()), frameId_, light_, camera_, optixState_.getTraversableHandle()});
     frameId_++;
 
     OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), optixLaunchParamsBuffer_.getData(), optixLaunchParamsBuffer_.getDataSize(), &optixState_.getShaderBindingTable(), width_, height_, 1));

@@ -61,11 +61,7 @@ extern "C" __global__ void __raygen__renderFrame() {
       payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
-  const auto r = static_cast<int>(255.5 * color.x()); // intへのキャストは小数点以下切り捨てなので、255よりも少し大きい値を使用しました。
-  const auto g = static_cast<int>(255.5 * color.y());
-  const auto b = static_cast<int>(255.5 * color.z());
-
-  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = r << 0 | g << 8 | b << 16 | 0xff000000;
+  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float4{color.x(), color.y(), color.z(), 1};
 }
 
 // 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。

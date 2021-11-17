@@ -2,10 +2,12 @@
 
 #include <cstdint>
 
+#include <cuda_runtime.h>
+
 namespace osc {
 
 struct LaunchParams {
-  std::uint32_t *imageBuffer;
+  float4 *imageBuffer;
   int frameId;
 };
 

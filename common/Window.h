@@ -6,13 +6,13 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace osc {
 namespace common {
@@ -51,7 +51,7 @@ protected:
 
   virtual void resize(const Eigen::Vector2i &size) noexcept = 0;
 
-  virtual std::vector<std::uint32_t> render() noexcept = 0;
+  virtual std::vector<Eigen::Vector4f> render() noexcept = 0;
 
 public:
   Window(const std::string &title) noexcept {
@@ -81,7 +81,7 @@ public:
     glfwTerminate();
   }
 
-  auto run() noexcept {
+  virtual void run() noexcept {
     resize(getFrameBufferSize());
 
     glfwSetFramebufferSizeCallback(glfwWindow_, [](GLFWwindow *glfwWindow, int width, int height) {
@@ -105,7 +105,7 @@ public:
     while (!glfwWindowShouldClose(glfwWindow_)) {
       auto frameBufferSize = getFrameBufferSize();
 
-      glDrawPixels(frameBufferSize.x(), frameBufferSize.y(), GL_RGBA, GL_UNSIGNED_BYTE, render().data()); // TODO: glDrawPixelsを使うのをやめて、OpenGLのバージョンを上げる。
+      glDrawPixels(frameBufferSize.x(), frameBufferSize.y(), GL_RGBA, GL_FLOAT, render().data()); // TODO: glDrawPixelsを使うのをやめて、OpenGLのバージョンを上げる。
 
       glfwSwapBuffers(glfwWindow_);
       glfwPollEvents();
