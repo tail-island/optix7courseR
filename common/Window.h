@@ -6,13 +6,13 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#ifdef _WIN32 // gl.hの前にwindows.hをincludeしないとならないらしい。。。
+#include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 namespace osc {
 namespace common {
