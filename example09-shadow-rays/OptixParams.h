@@ -22,7 +22,7 @@ struct Camera {
 };
 
 struct LaunchParams {
-  float4 *imageBuffer;
+  float3 *imageBuffer;
 
   float3 lightPosition;
   Camera camera;

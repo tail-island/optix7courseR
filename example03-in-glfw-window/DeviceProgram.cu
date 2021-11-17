@@ -27,7 +27,7 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto g = (y + frameId) % 256;
   const auto b = (x + y + frameId) % 256;
 
-  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float4{static_cast<float>(r) / 255, static_cast<float>(g) / 255, static_cast<float>(b) / 255, 1};;
+  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float3{static_cast<float>(r) / 255, static_cast<float>(g) / 255, static_cast<float>(b) / 255};;
 }
 
 extern "C" __global__ void __closesthit__radiance() {

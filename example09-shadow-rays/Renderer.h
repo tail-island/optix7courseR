@@ -22,7 +22,7 @@ class Renderer final {
   int width_;
   int height_;
 
-  common::DeviceVectorBuffer<Eigen::Vector4f> imageBuffer_;
+  common::DeviceVectorBuffer<Eigen::Vector3f> imageBuffer_;
   Eigen::Vector3f lightPosition_;
   Camera camera_;
 
@@ -45,7 +45,7 @@ public:
   }
 
   auto render() noexcept {
-    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<float4 *>(imageBuffer_.getData()), *reinterpret_cast<float3 *>(&lightPosition_), camera_, optixState_.getTraversableHandle()});
+    optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<float3 *>(imageBuffer_.getData()), *reinterpret_cast<float3 *>(&lightPosition_), camera_, optixState_.getTraversableHandle()});
 
     OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), optixLaunchParamsBuffer_.getData(), optixLaunchParamsBuffer_.getDataSize(), &optixState_.getShaderBindingTable(), width_, height_, 1));
 

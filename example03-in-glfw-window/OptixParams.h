@@ -7,7 +7,7 @@
 namespace osc {
 
 struct LaunchParams {
-  float4 *imageBuffer;
+  float3 *imageBuffer;
   int frameId;
 };
 

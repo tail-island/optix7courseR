@@ -51,7 +51,7 @@ protected:
 
   virtual void resize(const Eigen::Vector2i &size) noexcept = 0;
 
-  virtual std::vector<Eigen::Vector4f> render() noexcept = 0;
+  virtual std::vector<Eigen::Vector3f> render() noexcept = 0;
 
 public:
   Window(const std::string &title) noexcept {
@@ -105,7 +105,7 @@ public:
     while (!glfwWindowShouldClose(glfwWindow_)) {
       auto frameBufferSize = getFrameBufferSize();
 
-      glDrawPixels(frameBufferSize.x(), frameBufferSize.y(), GL_RGBA, GL_FLOAT, render().data()); // TODO: glDrawPixelsを使うのをやめて、OpenGLのバージョンを上げる。
+      glDrawPixels(frameBufferSize.x(), frameBufferSize.y(), GL_RGB, GL_FLOAT, render().data()); // TODO: glDrawPixelsを使うのをやめて、OpenGLのバージョンを上げる。
 
       glfwSwapBuffers(glfwWindow_);
       glfwPollEvents();

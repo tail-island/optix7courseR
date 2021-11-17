@@ -23,7 +23,7 @@ public:
     renderer_.resize(size.x(), size.y());
   }
 
-  std::vector<Eigen::Vector4f> render() noexcept override {
+  std::vector<Eigen::Vector3f> render() noexcept override {
     return renderer_.render();
   }
 };

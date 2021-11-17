@@ -92,7 +92,7 @@ extern "C" __global__ void __raygen__renderFrame() {
     return result;
   }();
 
-  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float4{color.x(), color.y(), color.z(), 1};
+  optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float3{color.x(), color.y(), color.z()};
 }
 
 // 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
