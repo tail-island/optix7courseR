@@ -83,16 +83,16 @@ extern "C" __global__ void __raygen__renderFrame() {
   optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float3{color.x(), color.y(), color.z()};
 }
 
-// 物体にレイが衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
+// 物体にレイが衝突した場合の処理です。衝突判定は自動でやってくれます。
 
 extern "C" __global__ void __closesthit__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = getRandomColor(optixGetPrimitiveIndex()); // とりあえず、光が衝突したポリゴンのインデックスをシードにして、ランダムな色を割り当てます。
 }
 
-// 物体にレイが衝突しそうな場合の処理？
+// 物体にレイが衝突しそうな場合の処理です。このコースでは最後まで使用しません。
 
 extern "C" __global__ void __anyhit__radiance() {
-  ; // とりあえず、なにもしません。
+  ; // このコースでは、なにもしません。
 }
 
 // レイが物体に衝突しなかった場合の処理です。

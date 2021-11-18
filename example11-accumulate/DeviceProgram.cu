@@ -32,7 +32,7 @@ inline __device__ auto getPayloadPointer() noexcept {
   return reinterpret_cast<void *>(static_cast<std::uint64_t>(optixGetPayload_0()) << 32 | static_cast<std::uint64_t>(optixGetPayload_1()));
 }
 
-//
+// ピクセルの色を取得するためにoptixTraceする際のペイロードです。PRD（Per Ray Data）と呼ばれたりもします。
 
 struct RadiancePayload {
   Eigen::Vector3f color;
@@ -46,11 +46,15 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
 
+  // カメラの情報を取得します。
+
   auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
 
   const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
   const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
+
+  // cuRANDを初期化します。
 
   auto curandState = ::curandState{};
   curand_init(0, (optixGetLaunchIndex().y * optixGetLaunchDimensions().x + optixGetLaunchIndex().x) + (optixGetLaunchDimensions().x * optixGetLaunchDimensions().y * optixLaunchParams.frameId), 0, &curandState);
@@ -61,10 +65,16 @@ extern "C" __global__ void __raygen__renderFrame() {
     auto result = Eigen::Vector3f{0, 0, 0};
 
     for (auto i = 0; i < PIXEL_SAMPLE_SIZE; ++i) {
-      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized(); // ランダムを追加します。
+      // レイの方向を、ランダム性を加えて計算します。
+
+      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
+
+      // ペイロードを表現する変数を用意します。optixTraceで呼び出される関数の中で使用されます。
 
       auto payload = RadiancePayload{Eigen::Vector3f{0, 0, 0}, &curandState};
       auto [payloadParam0, payloadParam1] = getPayloadParams(&payload);
+
+      // optixTraceして、レイをトレースします。
 
       optixTrace(
           optixLaunchParams.traversableHandle,
@@ -81,12 +91,16 @@ extern "C" __global__ void __raygen__renderFrame() {
           payloadParam0,                       // ペイロードではunsigned intしか使えません……。
           payloadParam1);
 
+      // optixTraceで設定されたcolorを使用して、ピクセルの色を設定します。
+
       result += payload.color / PIXEL_SAMPLE_SIZE;
     }
 
+    // カメラや画面のサイズが変わっていない（frameIdが0ではない。生成している画像が同じ）場合は、これまでの繰り返しで作成したピクセルの色と今回のピクセルの色の平均を取りをします。
+
     if (optixLaunchParams.frameId > 0) {
-      result += optixLaunchParams.frameId * *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x]);
-      result /= optixLaunchParams.frameId + 1;
+      result += optixLaunchParams.frameId * *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x]); // 過去のピクセルの色は捨ててしまっているので、今回のピクセルの色にこれまでの平均値をframeId（これまでに計算したピクセルの数）倍したものを足し合わせて、
+      result /= optixLaunchParams.frameId + 1;                                                                                                          // frameId（これまでに計算したピクセルの数）+ 1（今回計算したピクセルの分）で割ります。
     }
 
     return result;
@@ -194,7 +208,7 @@ extern "C" __global__ void __closesthit__radiance() {
   }();
 }
 
-// 物体に光が衝突しそうな場合の処理？
+// 物体にレイが衝突しそうな場合の処理です。このコースでは最後まで使用しません。
 
 extern "C" __global__ void __anyhit__radiance() {
   ; // 表面の色彩のためのレイでは、何もしません。
@@ -206,16 +220,16 @@ extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
 }
 
-// 影を生成するためのレイが、物体に衝突した場合の処理。
+// 影を生成するためのレイが、物体に衝突した場合の処理です。
 
 extern "C" __global__ void __closesthit__shadow() {
-  ; // 影を生成するためのレイでは、何もしません。
+  ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
 // 影を生成するためのレイが、物体に衝突しそうな場合の処理？
 
 extern "C" __global__ void __anyhit__shadow() {
-  ; // 影を生成するためのレイでは、何もしません。
+  ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
 // 影を生成するためのレイが、物体に衝突しなかった場合の処理。

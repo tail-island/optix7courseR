@@ -28,11 +28,13 @@ inline __device__ auto getPayloadPointer() noexcept {
   return reinterpret_cast<void *>(static_cast<std::uint64_t>(optixGetPayload_0()) << 32 | static_cast<std::uint64_t>(optixGetPayload_1()));
 }
 
-// 光を生成します。
+// レイを生成します。
 
 extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
   const auto &y = optixGetLaunchIndex().y;
+
+  // カメラの情報を取得します。
 
   auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
 
@@ -40,11 +42,16 @@ extern "C" __global__ void __raygen__renderFrame() {
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
   const auto &w = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.w);
 
+  // レイの方向を計算します。
+
   auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
 
-  auto color = Eigen::Vector3f{0};
+  // ピクセルの色を表現する変数を用意します。この値をoptixTraceして設定します。
 
+  auto color = Eigen::Vector3f{0};
   auto [payloadParam0, payloadParam1] = getPayloadParams(&color);
+
+  // optixTraceして、レイをトレースします。
 
   optixTrace(
       optixLaunchParams.traversableHandle,
@@ -61,10 +68,12 @@ extern "C" __global__ void __raygen__renderFrame() {
       payloadParam0,                       // ペイロードではunsigned intしか使えません……。
       payloadParam1);
 
+  // optixTraceで設定されたcolorを使用して、イメージ・バッファーに値を設定します。
+
   optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float3{color.x(), color.y(), color.z()};
 }
 
-// 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
+// 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれます。
 
 extern "C" __global__ void __closesthit__radiance() {
   const auto &triangleMeshes = reinterpret_cast<HitgroupData *>(optixGetSbtDataPointer())->triangleMeshes;
@@ -146,10 +155,10 @@ extern "C" __global__ void __closesthit__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * (isLightVisible ? std::abs(normal.dot(toLight.normalized())) : 0));
 }
 
-// 物体に光が衝突しそうな場合の処理？
+// 物体にレイが衝突しそうな場合の処理です。このコースでは最後まで使用しません。
 
 extern "C" __global__ void __anyhit__radiance() {
-  ; // 表面の色彩のためのレイでは、何もしません。
+  ; // このコースでは、なにもしません。
 }
 
 // トレースした光が物体に衝突しなかった場合の処理です。
@@ -158,22 +167,22 @@ extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
 }
 
-// 影を生成するためのレイが、物体に衝突した場合の処理。
+// 影を生成するためのレイが、物体に衝突した場合の処理です。
 
 extern "C" __global__ void __closesthit__shadow() {
-  ; // 影を生成するためのレイでは、何もしません。
+  ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
-// 影を生成するためのレイが、物体に衝突しそうな場合の処理？
+// 影を生成するためのレイが、物体に衝突しそうな場合の処理です。
 
 extern "C" __global__ void __anyhit__shadow() {
-  ; // 影を生成するためのレイでは、何もしません。
+  ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
-// 影を生成するためのレイが、物体に衝突しなかった場合の処理。
+// 影を生成するためのレイが、物体に衝突しなかった場合の処理です。
 
 extern "C" __global__ void __miss__shadow() {
-  *reinterpret_cast<bool *>(getPayloadPointer()) = true; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。
+  *reinterpret_cast<bool *>(getPayloadPointer()) = true; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るい。
 }
 
 } // namespace osc
