@@ -132,7 +132,7 @@ extern "C" __global__ void __closesthit__radiance() {
     const auto textureCoordinate = (1 - u - v) * triangleMeshes.textureCoordinates[index.x()] + u * triangleMeshes.textureCoordinates[index.y()] + v * triangleMeshes.textureCoordinates[index.z()];
     const auto textureColor = tex2D<float4>(triangleMeshes.textureObject, textureCoordinate.x(), textureCoordinate.y());
 
-    return Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z} * textureColor.w;
+    return static_cast<Eigen::Vector3f>(Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z} * textureColor.w);
   }();
 
   // レイの向きを取得します。
