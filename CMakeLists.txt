@@ -16,7 +16,7 @@ include(cmake/glfw.cmake)
 include(cmake/stb.cmake)
 include(cmake/tinyobjloader.cmake)
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # OptiXではbin2cしなければならないらしい。。。
 
