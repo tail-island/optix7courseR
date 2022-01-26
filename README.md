@@ -1,3 +1,7 @@
+[optix7course](https://github.com/ingowald/optix7course)をC++17で書き換えました。C++17やCMake3.18が提供する機能の活用と、行列演算を独自ライブラリから[Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)に変更することで、コードを単純化してあります。
+
+# 実行方法
+
 ## PowerShellを使用する場合
 
 PowerShell上で、以下を実行してください。

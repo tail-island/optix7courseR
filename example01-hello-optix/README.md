@@ -2,7 +2,7 @@
 
 まずは、環境が正しく構築されたかを確認しましょう。そのために、OptiXを初期化するAPI（Application Programming Interface）である`optixInit()`を呼び出してみます。
 
-NVIDIAのCUDAやOptiXのAPIでは、古いC言語との互換性のためだと思うのですけど、`throw`と`try/catch`ではなく戻り値でエラーを表現します。API呼び出しのたびに戻り値を調べる`if`文を書くのはあまりに大変ですから、common/Util.hにマクロを定義します。
+NVIDIAのCUDAやOptiXのAPIでは、古いC言語との互換性のためだと思うのですけど、`throw`と`try/catch`ではなく戻り値でエラーを表現します。API呼び出しのたびに戻り値を調べる`if`文を書くのはあまりに大変なので、common/Util.hにマクロを定義しました。
 
 ~~~c++
 #define CUDA_CHECK(call)                                                                                                                       \
@@ -39,7 +39,7 @@ NVIDIAのCUDAやOptiXのAPIでは、古いC言語との互換性のためだと�
 OPTIX_CHECK(optixInit());
 ~~~
 
-では、実行してください。エラー・メッセージが表示されなければ、これでexample01-hello-worldは完了です。お疲れさまでした。
+では、実行してください。エラー・メッセージが表示されなければ、これでexample01-hello-optixは完了です。お疲れさまでした。
 
 ![example01-hello-world-linux]()
 
