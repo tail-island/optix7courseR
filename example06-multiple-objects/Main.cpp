@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     result.addObject([] {
       auto result = osc::Object{};
 
-      result.addCube(Eigen::Vector3f{0, -1.5, 0}, Eigen::Vector3f{10, 0.1, 10});
+      result.addRectangular(Eigen::Vector3f{0, -1.5, 0}, Eigen::Vector3f{10, 0.1, 10});
 
       result.setColor(Eigen::Vector3f{0, 1, 0});
 
@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     result.addObject([] {
       auto result = osc::Object{};
 
-      result.addCube(Eigen::Vector3f{0, 0, 0}, Eigen::Vector3f{2, 2, 2});
+      result.addRectangular(Eigen::Vector3f{0, 0, 0}, Eigen::Vector3f{2, 2, 2});
 
       result.setColor(Eigen::Vector3f{0, 1, 1});
 

@@ -21,7 +21,7 @@ public:
     return indices_;
   }
 
-  auto addCube(const Eigen::Vector3f &center, const Eigen::Vector3f &size) noexcept {
+  auto addRectangular(const Eigen::Vector3f &center, const Eigen::Vector3f &size) noexcept {
     const auto unitCubeVertices = std::vector<Eigen::Vector3f>{
         {0, 0, 0},
         {1, 0, 0},
