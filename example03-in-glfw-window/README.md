@@ -65,6 +65,6 @@ auto render() noexcept {
 
 以上で、画面に動くテスト・パターンが表示されます。テスト・パターンが画面に表示されたら、example03-in-glfw-windowは完了です。お疲れさまでした。
 
-![example02-pipeline-and-raygen-linux]()
+![example03-in-glfw-window-linux]()
 
-![example02-pipeline-and-raygen-windows]()
+![example03-in-glfw-window-windows]()
