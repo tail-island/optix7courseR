@@ -2,7 +2,7 @@
 
 画像ファイルが生成されるだけじゃ物足りない！　画面に表示してレイ・トレーシング結果をすぐに見たい！　そりゃ、そうですよね。というわけで、example03では、画面にウィンドウ表示してみます。
 
-とは言っても、画面表示をイチからやるのは大変なので、GLFWというライブラリを使用して楽します。ただ、GLFWはちょっとレイヤが低いライブラリなので、common/Window.hでラップしました。このcommon/Window.hで定義している`osc::common::Window`クラスを継承して、Window.hでexample03用のウィンドウを表現する`osc::Window`クラスを作成します。といってもやっていることは単純で、Renderer.hで定義している`osc::Renderer`との間をつないでいるだけです。
+とは言っても、画面表示をイチからやるのは大変なので、GLFWというライブラリを使用して楽をしましょう。GLFWはちょっとレイヤが低いライブラリなので、今回はcommon/Window.hでラップしました。このcommon/Window.hで定義している`osc::common::Window`クラスを継承して、Window.hでexample03用のウィンドウを表現する`osc::Window`クラスを作成します。といってもやっていることは単純で、Renderer.hで定義している`osc::Renderer`との間をつないでいるだけです。
 
 ~~~c++
 void resize(const Eigen::Vector2i &size) noexcept override {
@@ -63,7 +63,7 @@ auto render() noexcept {
 }
 ~~~
 
-これで画面に動くテスト・パターンが表示されます。テスト・パターンが画面に表示されたら、example03-in-glfw-windowは完了です。お疲れさまでした。
+以上で、画面に動くテスト・パターンが表示されます。テスト・パターンが画面に表示されたら、example03-in-glfw-windowは完了です。お疲れさまでした。
 
 ![example02-pipeline-and-raygen-linux]()
 
