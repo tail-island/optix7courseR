@@ -12,7 +12,7 @@ find_package(OpenGL      REQUIRED)
 find_package(OptiX       REQUIRED)
 
 include(cmake/Eigen.cmake)
-include(cmake/glfw.cmake)
+include(cmake/GLFW.cmake)
 include(cmake/stb.cmake)
 include(cmake/tinyobjloader.cmake)
 

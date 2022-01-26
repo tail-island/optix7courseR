@@ -36,7 +36,7 @@ struct LaunchParams {
 
 まぁ、一度作ってしまえばこの先は小さな修正しかしませんので、こういうモノなんだと考えて写経していただくことにしてここではコードの説明は省略で。設定のパラメーター等は、後でOptiXのリファレンスを参照していただければよいかなと。
 
-というわけで、これで準備が終わりましたから、Render.hでOptiXを実行してみましょう。作業は簡単で、`LaunchParms`構造体をGPUのメモリに転送（この作業を楽にするために、common/DeviceBuffer.hに`DeviceBuffer`というユーティリティ・クラスを作成しました）して、`optixLaunch()`関数を呼び出すだけです。
+というわけで、これで準備が終わりましたから、Renderer.hでOptiXを実行してみましょう。作業は簡単で、`LaunchParms`構造体をGPUのメモリに転送（この作業を楽にするために、common/DeviceBuffer.hに`DeviceBuffer`というユーティリティ・クラスを作成しました）して、`optixLaunch()`関数を呼び出すだけです。
 
 ~~~c++
 optixLaunchParamsBuffer_.set(LaunchParams{reinterpret_cast<std::uint32_t *>(imageBuffer_.getData())});
