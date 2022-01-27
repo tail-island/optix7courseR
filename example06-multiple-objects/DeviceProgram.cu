@@ -16,6 +16,10 @@ extern "C" {
 __constant__ LaunchParams optixLaunchParams;
 }
 
+struct HitgroupData {
+  TriangleMeshes triangleMeshes;
+};
+
 // OptiXのペイロードはunsigned int×n個で扱いづらいので、構造体へのポインタに変換します。
 
 inline __device__ auto getPayloadParams(void *payloadPointer) noexcept {
@@ -83,11 +87,11 @@ extern "C" __global__ void __closesthit__radiance() {
   const auto normal = [&] {
     const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
 
-    const auto &vector1 = triangleMeshes.vertices[index.x()];
-    const auto &vector2 = triangleMeshes.vertices[index.y()];
-    const auto &vector3 = triangleMeshes.vertices[index.z()];
+    const auto &vertex1 = triangleMeshes.vertices[index.x()];
+    const auto &vertex2 = triangleMeshes.vertices[index.y()];
+    const auto &vertex3 = triangleMeshes.vertices[index.z()];
 
-    return (vector2 - vector1).cross(vector3 - vector1).normalized();
+    return (vertex2 - vertex1).cross(vertex3 - vertex1).normalized();
   }();
 
   // レイの向きを取得します。

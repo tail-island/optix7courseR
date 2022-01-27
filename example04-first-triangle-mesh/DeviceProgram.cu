@@ -46,7 +46,7 @@ extern "C" __global__ void __raygen__renderFrame() {
 
   // カメラの情報を取得します。
 
-  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);  // optixTraceの都合で、const autoに出来ない……。
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin); // optixTraceの都合で、const autoに出来ない……。
 
   const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
@@ -54,12 +54,12 @@ extern "C" __global__ void __raygen__renderFrame() {
 
   // レイの方向を計算します。
 
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();  // optixTraceの都合で、const autoに出来ない……。
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized(); // optixTraceの都合で、const autoに出来ない……。
 
   // ピクセルの色を表現する変数を用意します。この値をoptixTraceして設定します。
 
   auto color = Eigen::Vector3f{0};
-  auto [payloadParam0, payloadParam1] = getPayloadParams(&color);  // optixTraceの都合で、const autoに出来ない……。
+  auto [payloadParam0, payloadParam1] = getPayloadParams(&color); // optixTraceの都合で、const autoに出来ない……。
 
   // optixTraceして、レイをトレースします。
 

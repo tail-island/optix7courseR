@@ -42,8 +42,4 @@ struct TriangleMeshes {
   Eigen::Vector3f color;
 };
 
-struct HitgroupData {
-  TriangleMeshes triangleMeshes;
-};
-
 } // namespace osc

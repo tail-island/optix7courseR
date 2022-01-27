@@ -20,6 +20,10 @@ extern "C" {
 __constant__ LaunchParams optixLaunchParams;
 }
 
+struct HitgroupData {
+  TriangleMeshes triangleMeshes;
+};
+
 // OptiXのペイロードはunsigned int×n個で扱いづらいので、構造体へのポインタに変換します。
 
 inline __device__ auto getPayloadParams(void *payloadPointer) noexcept {

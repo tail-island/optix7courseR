@@ -16,6 +16,10 @@ extern "C" {
 __constant__ LaunchParams optixLaunchParams;
 }
 
+struct HitgroupData {
+  TriangleMeshes triangleMeshes;
+};
+
 // OptiXのペイロードはunsigned int×n個で扱いづらいので、構造体へのポインタに変換します。
 
 inline __device__ auto getPayloadParams(void *payloadPointer) noexcept {
@@ -36,7 +40,7 @@ extern "C" __global__ void __raygen__renderFrame() {
 
   // カメラの情報を取得します。
 
-  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin); // optixTraceの都合で、const autoに出来ない……。
 
   const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
@@ -44,12 +48,12 @@ extern "C" __global__ void __raygen__renderFrame() {
 
   // レイの方向を計算します。
 
-  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
+  auto direction = ((static_cast<float>(x) / optixGetLaunchDimensions().x * 2 - 1) * u + (static_cast<float>(y) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized(); // optixTraceの都合で、const autoに出来ない……。
 
   // ピクセルの色を表現する変数を用意します。この値をoptixTraceして設定します。
 
   auto color = Eigen::Vector3f{0};
-  auto [payloadParam0, payloadParam1] = getPayloadParams(&color);
+  auto [payloadParam0, payloadParam1] = getPayloadParams(&color); // optixTraceの都合で、const autoに出来ない……。
 
   // optixTraceして、レイをトレースします。
 
@@ -83,11 +87,11 @@ extern "C" __global__ void __closesthit__radiance() {
   const auto normal = [&] {
     const auto &index = triangleMeshes.indices[optixGetPrimitiveIndex()];
 
-    const auto &vector1 = triangleMeshes.vertices[index.x()];
-    const auto &vector2 = triangleMeshes.vertices[index.y()];
-    const auto &vector3 = triangleMeshes.vertices[index.z()];
+    const auto &vertex1 = triangleMeshes.vertices[index.x()];
+    const auto &vertex2 = triangleMeshes.vertices[index.y()];
+    const auto &vertex3 = triangleMeshes.vertices[index.z()];
 
-    return (vector2 - vector1).cross(vector3 - vector1).normalized();
+    return (vertex2 - vertex1).cross(vertex3 - vertex1).normalized();
   }();
 
   // レイの向きを取得します。
@@ -109,7 +113,7 @@ extern "C" __global__ void __anyhit__radiance() {
   ; // このコースでは、なにもしません。
 }
 
-// トレースした光が物体に衝突しなかった場合の処理です。
+// レイが物体に衝突しなかった場合の処理です。
 
 extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
