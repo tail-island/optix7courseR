@@ -95,7 +95,7 @@ public:
       return result;
     }();
 
-    // 後続処理のために、モデルのオブジェクトの各属性を抽出します。
+    // OptixのTraversableHandleを生成します。
 
     std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(verticesBuffers_), [](const Object &object) {
       return common::DeviceVectorBuffer<Eigen::Vector3f>{object.getVertices()};
@@ -104,8 +104,6 @@ public:
     std::transform(std::begin(model.getObjects()), std::end(model.getObjects()), std::back_inserter(indicesBuffers_), [](const Object &object) {
       return common::DeviceVectorBuffer<Eigen::Vector3i>{object.getIndices()};
     });
-
-    // OptixのTraversableHandleを生成します。
 
     [&] {
       const auto accelBuildOptions = [&] {
