@@ -71,11 +71,11 @@ class Object final {
   std::vector<Eigen::Vector2f> textureCoordinates_;
   std::vector<Eigen::Vector3i> indices_;
 
-  Eigen::Vector3f diffuse_;
-  int diffuseTextureIndex_;
+  Eigen::Vector3f color_;
+  int textureIndex_;
 
 public:
-  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals, const std::vector<Eigen::Vector2f> &textureCoordinates, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse, int diffuseTextureIndex) noexcept : vertices_(vertices), normals_(normals), textureCoordinates_(textureCoordinates), indices_(indices), diffuse_(diffuse), diffuseTextureIndex_(diffuseTextureIndex) {
+  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals, const std::vector<Eigen::Vector2f> &textureCoordinates, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse, int diffuseTextureIndex) noexcept : vertices_(vertices), normals_(normals), textureCoordinates_(textureCoordinates), indices_(indices), color_(diffuse), textureIndex_(diffuseTextureIndex) {
     ;
   }
 
@@ -95,12 +95,12 @@ public:
     return indices_;
   }
 
-  const auto &getDiffuse() const noexcept {
-    return diffuse_;
+  const auto &getColor() const noexcept {
+    return color_;
   }
 
-  auto getDiffuseTextureIndex() const noexcept {
-    return diffuseTextureIndex_;
+  auto getTextureIndex() const noexcept {
+    return textureIndex_;
   }
 };
 

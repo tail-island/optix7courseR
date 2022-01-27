@@ -47,10 +47,10 @@ class Object final {
   std::vector<Eigen::Vector3f> vertices_;
   std::vector<Eigen::Vector3i> indices_;
 
-  Eigen::Vector3f diffuse_;
+  Eigen::Vector3f color_;
 
 public:
-  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), indices_(indices), diffuse_(diffuse) {
+  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), indices_(indices), color_(diffuse) {
     ;
   }
 
@@ -62,8 +62,8 @@ public:
     return indices_;
   }
 
-  const auto &getDiffuse() const noexcept {
-    return diffuse_;
+  const auto &getColor() const noexcept {
+    return color_;
   }
 };
 

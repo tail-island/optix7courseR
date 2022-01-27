@@ -424,7 +424,7 @@ public:
 
                 result.triangleMeshes.vertices = reinterpret_cast<Eigen::Vector3f *>(verticesBuffers_[i].getData());
                 result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
-                result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
+                result.triangleMeshes.color = model.getObjects()[i].getColor();
 
                 return result;
               }());

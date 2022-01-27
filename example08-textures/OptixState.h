@@ -497,11 +497,11 @@ public:
                 result.triangleMeshes.normals = reinterpret_cast<Eigen::Vector3f *>(normalsBuffers_[i].getData());
                 result.triangleMeshes.textureCoordinates = reinterpret_cast<Eigen::Vector2f *>(textureCoordinatesBuffers_[i].getData());
                 result.triangleMeshes.indices = reinterpret_cast<Eigen::Vector3i *>(indicesBuffers_[i].getData());
-                result.triangleMeshes.color = model.getObjects()[i].getDiffuse();
+                result.triangleMeshes.color = model.getObjects()[i].getColor();
 
-                if (model.getObjects()[i].getDiffuseTextureIndex() >= 0) {
+                if (model.getObjects()[i].getTextureIndex() >= 0) {
                   result.triangleMeshes.hasTextureObject = true;
-                  result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getDiffuseTextureIndex()];
+                  result.triangleMeshes.textureObject = textureObjects_[model.getObjects()[i].getTextureIndex()];
                 } else {
                   result.triangleMeshes.hasTextureObject = false;
                 }
