@@ -1,6 +1,6 @@
 # example07-first-real-model
 
-example06で標準的な3Dグラフィックスのモデルになりましたので、これなら誰かが作成してくれたかっこいい3Dモデルを表示できるんじゃないかな？
+example06で標準的な3Dグラフィックスのモデルになりましたので、これなら既存のかっこいい3Dモデルを表示できるんじゃないかな？
 
 というわけで、ネタ元である[optix7course](https://github.com/ingowald/optix7course)に従って、[McGuire Computer Graphics Archive](https://casual-effects.com/data/)のCrytek Spozaのモデルを使用してみましょう。モデルの読み込み処理は、ネタ元と同じ[tinyobjectloader](https://github.com/tinyobjloader/tinyobjloader)を使用します。
 
