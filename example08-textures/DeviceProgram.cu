@@ -102,9 +102,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // レイが衝突した場所の法線を取得します。
 
-  const auto normal = [&] {
-    return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
-  }();
+  const auto normal = ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
 
   // レイの向きを取得します。
 

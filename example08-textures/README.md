@@ -419,9 +419,7 @@ const auto color = [&] {
 
 // レイが衝突した場所の法線を取得します。
 
-const auto normal = [&] {
-  return ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
-}();
+const auto normal = ((1 - u - v) * triangleMeshes.normals[index.x()] + u * triangleMeshes.normals[index.y()] + v * triangleMeshes.normals[index.z()]).normalized();
 ~~~
 
 で、残りはこれまでと同じ。これで、テクスチャーが張り付いた立派な3Dグラフィックスが表示されます。プログラムを実行して、テクスチャーで装飾された画像が表示されたら作業は終了です。お疲れさまでした。

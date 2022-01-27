@@ -122,9 +122,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // レイが衝突した場所（から、同じポリゴンに再衝突しないように法線方向に少しずらした場所）を取得します。
 
-  auto hitPosition = [&] { // optixTraceの都合で、const autoに出来ない……。
-    return static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。
-  }();
+  auto hitPosition = static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。 // optixTraceの都合で、const autoに出来ない……。
 
   // レイが衝突した場所から光源への方向を取得します。
 
@@ -144,7 +142,8 @@ extern "C" __global__ void __closesthit__radiance() {
       *reinterpret_cast<float3 *>(&hitPosition),
       *reinterpret_cast<float3 *>(&toLight),
       0.0f,
-      1.0f - 1e-3f, // toLightの距離までしかトレースしないようにします（- 1e-3fしているのは、hitPositionを移動したため）。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
+      1.0f, // toLightの距離までしかトレースしないようにします。
+      // 1.0f - 1e-3f, // toLightの距離までしかトレースしないようにします（- 1e-3fしているのは、hitPositionを移動したため）。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
       0.0f,
       OptixVisibilityMask(255),
       OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT,
@@ -154,9 +153,9 @@ extern "C" __global__ void __closesthit__radiance() {
       payloadParam0,
       payloadParam1);
 
-  // 色を設定します。光源が見えない場合でも、0.3の明るさで表示します。
+  // 色を設定します。光源が見えない場合でも、0.2の明るさで表示します。
 
-  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.3 + 0.7 * (isLightVisible ? std::abs(normal.dot(toLight.normalized())) : 0));
+  *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * (isLightVisible ? normal.dot(toLight.normalized()) : 0));
 }
 
 // 物体にレイが衝突しそうな場合の処理です。このコースでは最後まで使用しません。
