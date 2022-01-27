@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
   const auto light = [&] {
     const auto size = 200.0f;
 
-    return osc::Light{{-1000.0f - size, 800.0f, -size}, {2.0f * size, 0.0f}, {0.0f, 0.0f, 2.0f * size}, {3000000.0f, 3000000.0f, 3000000.0f}};
+    return osc::Light{{-1000.0f - size, 800.0f, -size}, {2.0f * size, 0.0f, 0.0f}, {0.0f, 0.0f, 2.0f * size}, {3000000.0f, 3000000.0f, 3000000.0f}};
   }();
 
   osc::Window("Optix 7 Course Example", camera, model, light).run();

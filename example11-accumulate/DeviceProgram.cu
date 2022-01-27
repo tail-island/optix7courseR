@@ -193,7 +193,7 @@ extern "C" __global__ void __closesthit__radiance() {
           *reinterpret_cast<float3 *>(&hitPosition),
           *reinterpret_cast<float3 *>(&toLight),
           0.0f,
-          1.0f - 1e-3f, // toLightの距離までしかトレースしないようにします（- 1e-3fしているのは、hitPositionを移動したため）。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
+          1.0f, // toLightの距離までしかトレースしないようにします。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
           0.0f,
           OptixVisibilityMask(255),
           OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT,
