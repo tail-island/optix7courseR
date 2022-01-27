@@ -35,6 +35,10 @@ struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) HitgroupRecord {
 `HitgroupRecord`を作成する部分にも修正が必要です。
 
 ~~~c++
+auto result = OptixShaderBindingTable{};
+
+...
+
 [&] {
   const auto hitgroupRecords = [&] {
     auto result = std::vector<HitgroupRecord>{};
