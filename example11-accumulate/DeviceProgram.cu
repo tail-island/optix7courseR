@@ -11,8 +11,8 @@
 
 #include "OptixParams.h"
 
-#define PIXEL_SAMPLE_SIZE 1
-#define LIGHT_SAMPLE_SIZE 4
+#define PIXEL_SAMPLE_SIZE 2
+#define LIGHT_SAMPLE_SIZE 2
 
 namespace osc {
 
@@ -41,10 +41,10 @@ inline __device__ auto getPayloadPointer() noexcept {
 struct RadiancePayload {
   Eigen::Vector3f color;
 
-  ::curandState *curandState;
+  ::curandState *curandState; // 乱数を使用したいので、cuRANDのステータスを保持しておきます。
 };
 
-// 光を生成します。
+// レイを生成します。
 
 extern "C" __global__ void __raygen__renderFrame() {
   const auto &x = optixGetLaunchIndex().x;
@@ -52,7 +52,7 @@ extern "C" __global__ void __raygen__renderFrame() {
 
   // カメラの情報を取得します。
 
-  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin);
+  auto &origin = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.origin); // optixTraceの都合で、const autoに出来ない……。
 
   const auto &u = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.u);
   const auto &v = *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.camera.v);
@@ -71,12 +71,12 @@ extern "C" __global__ void __raygen__renderFrame() {
     for (auto i = 0; i < PIXEL_SAMPLE_SIZE; ++i) {
       // レイの方向を、ランダム性を加えて計算します。
 
-      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized();
+      auto direction = (((static_cast<float>(x) + curand_uniform(&curandState)) / optixGetLaunchDimensions().x * 2 - 1) * u + ((static_cast<float>(y) + curand_uniform(&curandState)) / optixGetLaunchDimensions().y * 2 - 1) * v + w).normalized(); // optixTraceの都合で、const autoに出来ない……。
 
       // ペイロードを表現する変数を用意します。optixTraceで呼び出される関数の中で使用されます。
 
       auto payload = RadiancePayload{Eigen::Vector3f{0, 0, 0}, &curandState};
-      auto [payloadParam0, payloadParam1] = getPayloadParams(&payload);
+      auto [payloadParam0, payloadParam1] = getPayloadParams(&payload); // optixTraceの都合で、const autoに出来ない……。
 
       // optixTraceして、レイをトレースします。
 
@@ -103,7 +103,7 @@ extern "C" __global__ void __raygen__renderFrame() {
     // カメラや画面のサイズが変わっていない（frameIdが0ではない。生成している画像が同じ）場合は、これまでの繰り返しで作成したピクセルの色と今回のピクセルの色の平均を取りをします。
 
     if (optixLaunchParams.frameId > 0) {
-      result += optixLaunchParams.frameId * *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x]); // 過去のピクセルの色は捨ててしまっているので、今回のピクセルの色にこれまでの平均値をframeId（これまでに計算したピクセルの数）倍したものを足し合わせて、
+      result += optixLaunchParams.frameId * *reinterpret_cast<Eigen::Vector3f *>(&optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x]); // 今回のピクセルの色にこれまでの平均値をframeId（これまでに計算したピクセルの数）倍したものを足し合わせて、
       result /= optixLaunchParams.frameId + 1;                                                                                                          // frameId（これまでに計算したピクセルの数）+ 1（今回計算したピクセルの分）で割ります。
     }
 
@@ -113,7 +113,7 @@ extern "C" __global__ void __raygen__renderFrame() {
   optixLaunchParams.imageBuffer[x + y * optixGetLaunchDimensions().x] = float3{color.x(), color.y(), color.z()};
 }
 
-// 物体に光が衝突した場合の処理です。衝突判定は自動でやってくれるみたい。
+// 物体にレイが衝突した場合の処理です。衝突判定は自動でやってくれます。
 
 extern "C" __global__ void __closesthit__radiance() {
   const auto &triangleMeshes = reinterpret_cast<HitgroupData *>(optixGetSbtDataPointer())->triangleMeshes;
@@ -136,7 +136,7 @@ extern "C" __global__ void __closesthit__radiance() {
     const auto textureCoordinate = (1 - u - v) * triangleMeshes.textureCoordinates[index.x()] + u * triangleMeshes.textureCoordinates[index.y()] + v * triangleMeshes.textureCoordinates[index.z()];
     const auto textureColor = tex2D<float4>(triangleMeshes.textureObject, textureCoordinate.x(), textureCoordinate.y());
 
-    return static_cast<Eigen::Vector3f>(Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z} * textureColor.w);
+    return Eigen::Vector3f{textureColor.x, textureColor.y, textureColor.z};
   }();
 
   // レイの向きを取得します。
@@ -161,9 +161,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
   // レイが衝突した場所（から、同じポリゴンに再衝突しないように法線方向に少しずらした場所）を取得します。
 
-  auto hitPosition = [&] {
-    return static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。
-  }();
+  auto hitPosition = static_cast<Eigen::Vector3f>((1 - u - v) * triangleMeshes.vertices[index.x()] + u * triangleMeshes.vertices[index.y()] + v * triangleMeshes.vertices[index.z()] + normal * 1e-3f); // Eigenは必要になるまで計算を遅らせるので、static_castしないとoptixTraceで計算途中の値をreinterpret_castされちゃう……。 // optixTraceの都合で、const autoに出来ない……。
 
   // サンプリングして衝突点の色を設定します。
 
@@ -181,7 +179,7 @@ extern "C" __global__ void __closesthit__radiance() {
         return static_cast<Eigen::Vector3f>(lightPosition - hitPosition);
       }();
 
-      // レイが衝突した場所から光源が見えるかを表現する変数を用意します。この値をoptixTraceして設定します。
+      // レイが衝突した場所から光源が見えるかを表現する変数を用意します。この値をoptixTraceして設定します。boolでも良いのですけど、計算の都合上3次元ベクトルで。
 
       auto lightVisibility = Eigen::Vector3f{0, 0, 0};
       auto [payloadParam0, payloadParam1] = getPayloadParams(&lightVisibility);
@@ -215,10 +213,10 @@ extern "C" __global__ void __closesthit__radiance() {
 // 物体にレイが衝突しそうな場合の処理です。このコースでは最後まで使用しません。
 
 extern "C" __global__ void __anyhit__radiance() {
-  ; // 表面の色彩のためのレイでは、何もしません。
+  ; // このコースでは、なにもしません。
 }
 
-// トレースした光が物体に衝突しなかった場合の処理です。
+// レイが物体に衝突しなかった場合の処理です。
 
 extern "C" __global__ void __miss__radiance() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // とりあえず、背景は真っ白にします。
@@ -230,13 +228,13 @@ extern "C" __global__ void __closesthit__shadow() {
   ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
-// 影を生成するためのレイが、物体に衝突しそうな場合の処理？
+// 影を生成するためのレイが、物体に衝突しそうな場合の処理です。
 
 extern "C" __global__ void __anyhit__shadow() {
   ; // 影を生成するためのレイでは、何もしません。光源に向けたレイが衝突しなかったのなら明るくするという実装のため。
 }
 
-// 影を生成するためのレイが、物体に衝突しなかった場合の処理。
+// 影を生成するためのレイが、物体に衝突しなかった場合の処理です。
 
 extern "C" __global__ void __miss__shadow() {
   *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = Eigen::Vector3f{1, 1, 1}; // 影を生成するためのレイが何にもぶつからなかった＝光源に辿り着けた＝明るさはマックスで。

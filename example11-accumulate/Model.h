@@ -192,7 +192,7 @@ public:
 
               for (auto j = 0; j < 3; ++j) {
                 result[j] = [&] {
-                  auto result = static_cast<int>(std::size(vertices));
+                  const auto result = static_cast<int>(std::size(vertices));
 
                   const auto &index = shape.mesh.indices[i * 3 + j];
 

@@ -158,7 +158,7 @@ extern "C" __global__ void __closesthit__radiance() {
           *reinterpret_cast<float3 *>(&hitPosition),
           *reinterpret_cast<float3 *>(&toLight),
           0.0f,
-          1.0f - 1e-3f, // toLightの距離までしかトレースしないようにします。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
+          1.0f, // toLightの距離までしかトレースしないようにします。そうしないと、光源の先にあるオブジェクトに衝突してしまう。。。
           0.0f,
           OptixVisibilityMask(255),
           OPTIX_RAY_FLAG_DISABLE_ANYHIT | OPTIX_RAY_FLAG_DISABLE_CLOSESTHIT,
@@ -180,7 +180,7 @@ extern "C" __global__ void __closesthit__radiance() {
 
 ループしてサンプリングしていることと、`toLight`に乱数を追加していることと、色を設定する際に光は距離の2乗で減衰するとして計算していることが、example09との違いです。diffを取るといろいろ違いが表示されますけど、それはサンプリングのためのループでインデントが変わったためで、実はexample09からあまり変更していないんです。
 
-あとは、OptixParams.hの型変更に合わせてRenderer.hやWindow.hを修正して、あと、光源が電球となりましたので建物の中の2階に移動させれば終わりです。プログラムを実行して、たしかに影の境界がぼやけたけど、ドット単位でみると描画のたびにやたらと明るくなったりとても暗くなったりがチラチラと入れ替わる少し不本意な画像が表示されたら作業は終了です。お疲れさまでした。
+あとは、OptixParams.hの型変更に合わせてRenderer.hやWindow.hを修正して、あと、光源が電球となりましたので建物の中の2階に移動させれば終わりです。プログラムを実行して、たしかに影の境界がぼやけたけど、ドット単位でみると描画のたびにやたらと明るくなったりとても暗くなったりしてチラチラする少し不本意な画像が表示されたら作業は終了です。お疲れさまでした。
 
 ![example10-soft-shadows-linux]()
 
