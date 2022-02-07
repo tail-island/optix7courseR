@@ -14,7 +14,7 @@
 1. [example08-textures](https://github.com/tail-island/optix7courseR/tree/main/example08-textures) - テクスチャーの貼り付け
 1. [example09-shadow-rays](https://github.com/tail-island/optix7courseR/tree/main/example09-shadow-rays) - 影の生成
 1. [example10-soft-shadows](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows) - リアルな影の生成
-1. [example11-accumulate](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate) - 積算による画像のノイズ除去
+1. [example11-accumulate](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate) - 積算によるノイズ除去
 
 # 実行方法
 
