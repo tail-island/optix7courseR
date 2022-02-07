@@ -41,6 +41,6 @@ OPTIX_CHECK(optixInit());
 
 では、実行してください。エラー・メッセージが表示されなければ、これでexample01-hello-optixは完了です。お疲れさまでした。
 
-![example01-hello-world-linux]()
+![example01-hello-world-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example01-hello-world-linux.png)
 
 ![example01-hello-world-windows]()

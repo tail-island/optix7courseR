@@ -46,6 +46,8 @@ OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), opti
 
 これで`__raygen__renderFrame()`で作成したテスト・パターンの画像を取得できます。今回は、この画像をstbという超便利なライブラリを使用してosc_example2.pngというファイルに保存して終わりにしました。画像が生成されたら、example02-pipeline-and-raygenは完了です。お疲れさまでした。
 
-![example02-pipeline-and-raygen-linux]()
+![example02-pipeline-and-raygen-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example02-pipeline-and-raygen-linux.png)
 
 ![example02-pipeline-and-raygen-windows]()
+
+![example02-pipeline-and-raygen](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/osc_example2.png)

@@ -110,14 +110,15 @@ public:
 
         CUDA_CHECK(cudaMallocArray(&textureArray, &channelDesc, texture.getImageSize().x(), texture.getImageSize().y()));
 
-        CUDA_CHECK(cudaMemcpy2DToArray(textureArray,
-                                       0,
-                                       0,
-                                       texture.getImage().data(),
-                                       texture.getImageSize().x() * sizeof(std::uint32_t),
-                                       texture.getImageSize().x() * sizeof(std::uint32_t),
-                                       texture.getImageSize().y(),
-                                       cudaMemcpyHostToDevice));
+        CUDA_CHECK(cudaMemcpy2DToArray(
+            textureArray,
+            0,
+            0,
+            texture.getImage().data(),
+            texture.getImageSize().x() * sizeof(std::uint32_t),
+            texture.getImageSize().x() * sizeof(std::uint32_t),
+            texture.getImageSize().y(),
+            cudaMemcpyHostToDevice));
 
         textureArrays_.emplace_back(textureArray);
 
