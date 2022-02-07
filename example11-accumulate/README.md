@@ -25,7 +25,7 @@ if (optixLaunchParams.frameId > 0) {
 
 ![example11-accumulate-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example11-accumulate-linux.png)
 
-![example11-accumulate-windows]()
+![example11-accumulate-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example11-accumulate-windows.png)
 
 # 終わりに
 

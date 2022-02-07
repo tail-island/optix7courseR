@@ -427,4 +427,4 @@ const auto normal = ((1 - u - v) * triangleMeshes.normals[index.x()] + u * trian
 
 ![example08-textures-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example08-textures-linux.png)
 
-![example08-textures-windows]()
+![example08-textures-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example08-textures-windows.png)

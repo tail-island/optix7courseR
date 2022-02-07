@@ -50,6 +50,6 @@ OPTIX_CHECK(optixLaunch(optixState_.getPipeline(), optixState_.getStream(), opti
 
 ![example02-pipeline-and-raygen-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example02-pipeline-and-raygen-linux.png)
 
-![example02-pipeline-and-raygen-windows]()
+![example02-pipeline-and-raygen-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example02-pipeline-and-raygen-windows.png)
 
 ![example02-pipeline-and-raygen](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/osc_example2.png)

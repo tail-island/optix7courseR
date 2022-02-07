@@ -290,4 +290,4 @@ extern "C" __global__ void __miss__radiance() {
 
 ![example04-first-triangle-mesh-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example04-first-triangle-mesh-linux.png)
 
-![example04-first-triangle-mesh-windows]()
+![example04-first-triangle-mesh-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example04-first-triangle-mesh-windows.png)

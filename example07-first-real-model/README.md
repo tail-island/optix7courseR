@@ -166,4 +166,4 @@ tinyobjectloaderは便利で簡単で素晴らしい！　これで、モデル�
 
 ![example07-first-real-model-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example07-first-real-model-linux.png)
 
-![example07-first-real-model-windows]()
+![example07-first-real-model-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example07-first-real-model-windows.png)

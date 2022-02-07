@@ -43,4 +43,4 @@ OPTIX_CHECK(optixInit());
 
 ![example01-hello-world-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example01-hello-world-linux.png)
 
-![example01-hello-world-windows]()
+![example01-hello-world-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example01-hello-world-windows.png)

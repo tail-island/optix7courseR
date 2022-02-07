@@ -67,4 +67,4 @@ auto render() noexcept {
 
 ![example03-in-glfw-window-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example03-in-glfw-window-linux.png)
 
-![example03-in-glfw-window-windows]()
+![example03-in-glfw-window-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example03-in-glfw-window-windows.png)

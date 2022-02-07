@@ -251,4 +251,4 @@ extern "C" __global__ void __miss__shadow() {
 
 ![example09-shadow-rays-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example09-shadow-rays-linux.png)
 
-![example09-shadow-rays-windows]()
+![example09-shadow-rays-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example09-shadow-rays-windows.png)

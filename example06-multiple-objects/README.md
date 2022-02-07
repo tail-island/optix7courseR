@@ -256,4 +256,4 @@ class OptixState final {
 
 ![example06-multiple-objects-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example06-multiple-objects-linux.png)
 
-![example06-multiple-objects-windows]()
+![example06-multiple-objects-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example06-multiple-objects-windows.png)

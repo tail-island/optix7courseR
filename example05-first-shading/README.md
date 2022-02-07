@@ -120,4 +120,4 @@ extern "C" __global__ void __closesthit__radiance() {
 
 ![example05-first-shading-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example05-first-shading-linux.png)
 
-![example05-first-shading-windows]()
+![example05-first-shading-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example05-first-shading-windows.png)

@@ -184,4 +184,4 @@ extern "C" __global__ void __closesthit__radiance() {
 
 ![example10-soft-shadows-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example10-soft-shadows-linux.png)
 
-![example10-soft-shadows-windows]()
+![example10-soft-shadows-windows](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example10-soft-shadows-windows.png)
