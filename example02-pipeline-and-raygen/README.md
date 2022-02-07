@@ -6,7 +6,7 @@
 
 ![OptiXの構造](https://raytracing-docs.nvidia.com/optix7/guide/pages/img/optix_programs.jpg)
 
-なんかいっぱい構成要素がありますけど、重要なのはRay generationとClosest-hitとAny-hit、Missの部分です。
+なんかいっぱい構成要素がありますけど、我々プログラマにとって重要なのは、Ray generationとClosest-hitとAny-hit、Missの部分です。
 
 レイ・トレーシングでは、レイ（光）をカメラ側から辿っていきます。もちろん現実のレイはそれとは逆の方向に光源から出ているわけですけど、光源からレイを辿っていくとカメラのセンサーに入らない場合がいっぱい出てきて、それらはすべて計算の無駄となってしまうので、カメラ側から逆に辿るしかないわけ。というわけで、この、カメラからどんなレイを飛ばす（辿っていく）のかをRay generationとして`__raygen__xxx()`にプログラミングします。
 
