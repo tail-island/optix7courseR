@@ -254,6 +254,6 @@ class OptixState final {
 
 では、プログラムを実行してください。地面の色と立方体の色が異なっていれば成功です。お疲れさまでした。
 
-![example06-multiple-objects-linux]()
+![example06-multiple-objects-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example06-multiple-objects-linux.png)
 
 ![example06-multiple-objects-windows]()
