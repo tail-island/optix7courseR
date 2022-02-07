@@ -182,6 +182,6 @@ extern "C" __global__ void __closesthit__radiance() {
 
 あとは、OptixParams.hの型変更に合わせてRenderer.hやWindow.hを修正して、あと、光源が電球となりましたので建物の中の2階に移動させれば終わりです。プログラムを実行して、たしかに影の境界がぼやけたけど、ドット単位でみると描画のたびにやたらと明るくなったりとても暗くなったりしてチラチラする少し不本意な画像が表示されたら作業は終了です。お疲れさまでした。
 
-![example10-soft-shadows-linux]()
+![example10-soft-shadows-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example10-soft-shadows-linux.png)
 
 ![example10-soft-shadows-windows]()
