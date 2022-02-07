@@ -249,6 +249,6 @@ extern "C" __global__ void __miss__shadow() {
 
 ともあれ、あとは、光源を設定するようにRenderrer.hやWindow.h、Main.cppを修正すれば終わりです。プログラムを実行して、パキッとした影が描画されることを確認できたら作業は終了です。お疲れさまでした。
 
-![example09-shadow-rays-linux]()
+![example09-shadow-rays-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example09-shadow-rays-linux.png)
 
 ![example09-shadow-rays-windows]()
