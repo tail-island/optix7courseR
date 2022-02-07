@@ -245,7 +245,7 @@ extern "C" __global__ void __miss__shadow() {
 *reinterpret_cast<Eigen::Vector3f *>(getPayloadPointer()) = color * (0.2 + 0.8 * (isLightVisible ? normal.dot(toLight.normalized()) : 0));
 ~~~
 
-影の部分を真っ暗にすると宇宙空間みたいに見えてしまうので、影であっても少しだけ明るく見えるようにしました。[元ネタのoptix7course](https://github.com/ingowald/optix7course/blob/master/example09_shadowRays/devicePrograms.cu)だとカメラへの角度でも明るさを変えている（だから影の部分でも明るい箇所と暗い箇所があるし、光がほぼ垂直にあたっているけどカメラと水平に近い床が暗くなっている）のですけど、理屈に合わない気がしたのと、[元ネタでもexample10](https://github.com/ingowald/optix7course/blob/master/example10_softShadows/devicePrograms.cu)だと光源との角度で明るさを計算していたので、こんな計算式にしてみました（反射した光のどれだけがカメラに届くかは角度次第なので、カメラとの角度も計算に入れたほうが良い気もしますが……）。
+影の部分を真っ暗にすると宇宙空間みたいに見えてしまうので、影であっても少しだけ明るく見えるようにしました。[元ネタのoptix7course](https://github.com/ingowald/optix7course/blob/master/example09_shadowRays/devicePrograms.cu)だとカメラへの角度でも明るさを変えている（だから影の部分でも明るい箇所と暗い箇所があるし、光がほぼ垂直にあたっているけどカメラと水平に近い床が暗くなっている）のですけど、理屈に合わない気がしたのと、[元ネタでもexample10](https://github.com/ingowald/optix7course/blob/master/example10_softShadows/devicePrograms.cu)だと光源との角度で明るさを計算していたので、こんな計算式にしてみました（反射した光のどれだけがカメラに届くかは角度次第なので、カメラとの角度も計算に入れたほうが良い気もしますけど……）。
 
 ともあれ、あとは、光源を設定するようにRenderrer.hやWindow.h、Main.cppを修正すれば終わりです。プログラムを実行して、パキッとした影が描画されることを確認できたら作業は終了です。お疲れさまでした。
 
