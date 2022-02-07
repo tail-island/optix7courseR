@@ -425,6 +425,6 @@ const auto normal = ((1 - u - v) * triangleMeshes.normals[index.x()] + u * trian
 
 で、残りはこれまでと同じ。これで、テクスチャーが張り付いた立派な3Dグラフィックスが表示されます。プログラムを実行して、テクスチャーで装飾された画像が表示されたら作業は終了です。お疲れさまでした。
 
-![example08-textures-linux]()
+![example08-textures-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example08-textures-linux.png)
 
 ![example08-textures-windows]()
