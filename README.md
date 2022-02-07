@@ -4,17 +4,17 @@
 
 # コース
 
-1. [開発環境が正しく構築されたか確認](https://github.com/tail-island/optix7courseR/tree/main/example01-hello-optix)
-1. [OptiXを使用するための前準備](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen)
-1. [生成された画像をウィンドウで表示](https://github.com/tail-island/optix7courseR/tree/main/example03-in-glfw-window)
-1. [ポリゴンを表示](https://github.com/tail-island/optix7courseR/tree/main/example04-first-triangle-mesh)
-1. [ポリゴンに陰影をつける](https://github.com/tail-island/optix7courseR/tree/main/example05-first-shading)
-1. [オブジェクトとしてポリゴンを構造化](https://github.com/tail-island/optix7courseR/tree/main/example06-multiple-objects)
-1. [既存の3Dモデルの読み込み](https://github.com/tail-island/optix7courseR/tree/main/example07-first-real-model)
-1. [テクスチャーの貼り付け](https://github.com/tail-island/optix7courseR/tree/main/example08-textures)
-1. [影の生成](https://github.com/tail-island/optix7courseR/tree/main/example09-shadow-rays)
-1. [リアルな影の生成](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows)
-1. [積算によるノイズ除去](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate)
+1. [開発環境を確認する](https://github.com/tail-island/optix7courseR/tree/main/example01-hello-optix)
+2. [OptiXを使用するための前準備](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen)
+3. [生成された画像をウィンドウで表示する](https://github.com/tail-island/optix7courseR/tree/main/example03-in-glfw-window)
+4. [ポリゴンを表示する](https://github.com/tail-island/optix7courseR/tree/main/example04-first-triangle-mesh)
+5. [ポリゴンに陰影をつける](https://github.com/tail-island/optix7courseR/tree/main/example05-first-shading)
+6. [オブジェクトとしてポリゴンを構造化する](https://github.com/tail-island/optix7courseR/tree/main/example06-multiple-objects)
+7. [既存の3Dモデルを読み込む](https://github.com/tail-island/optix7courseR/tree/main/example07-first-real-model)
+8. [テクスチャーの貼り付ける](https://github.com/tail-island/optix7courseR/tree/main/example08-textures)
+9. [影を生成する](https://github.com/tail-island/optix7courseR/tree/main/example09-shadow-rays)
+10. [リアルな影を生成する](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows)
+11. [積算でノイズを除去する](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate)
 
 # ビルド
 
