@@ -4,17 +4,17 @@
 
 # コース
 
-1. [example01-hello-optix](https://github.com/tail-island/optix7courseR/tree/main/example01-hello-optix) - 開発環境が正しく構築されたかの確認
-1. [example02-pipeline-and-raygen](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen) - OptiXを使用するための前準備
-1. [example03-in-glfw-window](https://github.com/tail-island/optix7courseR/tree/main/example03-in-glfw-window) - 生成された画像をウィンドウ表示
-1. [example04-first-triangle-mesh](https://github.com/tail-island/optix7courseR/tree/main/example04-first-triangle-mesh) - ポリゴンを表示
-1. [example05-first-shading](https://github.com/tail-island/optix7courseR/tree/main/example05-first-shading) - ポリゴンに陰影をつける
-1. [example06-multiple-objects](https://github.com/tail-island/optix7courseR/tree/main/example06-multiple-objects) - ポリゴンをオブジェクトとして構造化
-1. [example07-first-real-model](https://github.com/tail-island/optix7courseR/tree/main/example07-first-real-model) - 既存の3Dモデルの読み込み
-1. [example08-textures](https://github.com/tail-island/optix7courseR/tree/main/example08-textures) - テクスチャーの貼り付け
-1. [example09-shadow-rays](https://github.com/tail-island/optix7courseR/tree/main/example09-shadow-rays) - 影の生成
-1. [example10-soft-shadows](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows) - リアルな影の生成
-1. [example11-accumulate](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate) - 積算によるノイズ除去
+1. [開発環境が正しく構築されたか確認](https://github.com/tail-island/optix7courseR/tree/main/example01-hello-optix)
+1. [OptiXを使用するための前準備](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen)
+1. [生成された画像をウィンドウで表示](https://github.com/tail-island/optix7courseR/tree/main/example03-in-glfw-window)
+1. [ポリゴンを表示](https://github.com/tail-island/optix7courseR/tree/main/example04-first-triangle-mesh)
+1. [ポリゴンに陰影をつける](https://github.com/tail-island/optix7courseR/tree/main/example05-first-shading)
+1. [オブジェクトとしてポリゴンを構造化](https://github.com/tail-island/optix7courseR/tree/main/example06-multiple-objects)
+1. [既存の3Dモデルの読み込み](https://github.com/tail-island/optix7courseR/tree/main/example07-first-real-model)
+1. [テクスチャーの貼り付け](https://github.com/tail-island/optix7courseR/tree/main/example08-textures)
+1. [影の生成](https://github.com/tail-island/optix7courseR/tree/main/example09-shadow-rays)
+1. [リアルな影の生成](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows)
+1. [積算によるノイズ除去](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate)
 
 # ビルド
 
