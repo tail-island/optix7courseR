@@ -164,6 +164,6 @@ tinyobjectloaderは便利で簡単で素晴らしい！　これで、モデル�
 
 実行してみましょう。オブジェクトにランダムな色を設定したのでちょっとアレな、でも、クロアチアのスポンザ宮殿っぽい画像が表示されたら作業は終了です。お疲れさまでした。
 
-![example07-first-real-model-linux]()
+![example07-first-real-model-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example07-first-real-model-linux.png)
 
 ![example07-first-real-model-windows]()
