@@ -118,6 +118,6 @@ extern "C" __global__ void __closesthit__radiance() {
 
 プログラムを実行して、マウスで視点を変更すると3Dオブジェクトのポリゴンの明るさがイイ感じに変更されたら成功です。お疲れさまでした。
 
-![example05-first-shading-linux]()
+![example05-first-shading-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example05-first-shading-linux.png)
 
 ![example05-first-shading-windows]()
