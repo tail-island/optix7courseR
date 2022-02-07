@@ -16,13 +16,24 @@
 1. [example10-soft-shadows](https://github.com/tail-island/optix7courseR/tree/main/example10-soft-shadows) - リアルな影の生成
 1. [example11-accumulate](https://github.com/tail-island/optix7courseR/tree/main/example11-accumulate) - 積算によるノイズ除去
 
-# 実行方法
+# ビルド
 
-## PowerShellを使用する場合
+## Linuxでシェルを使用する場合
+
+ターミナル上で、以下を実行してください。
+
+~~~shell
+$ mkdir build
+$ cd build
+$ cmake -DOptiX_INSTALL_DIR=/opt/optix -DCMAKE_BUILD_TYPE=Release
+$ make
+~~~
+
+## WindowsでPowerShellを使用する場合
 
 PowerShell上で、以下を実行してください。
 
-~~~shell
+~~~powershell
 > New-Item -Path .\\build -ItemType Directory
 > Set-Location .\\build\\
 > cmake -DOptiX_INSTALL_DIR="C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.4.0" ..
@@ -36,7 +47,7 @@ PowerShell上で、以下を実行してください。
 ~~~json
 {
     "cmake.configureSettings": {
-        "OptiX_INSTALL_DIR": "C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.4.0"
+        "OptiX_INSTALL_DIR": "/opt/optix"  // Windowsの場合は"C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.4.0"
     }
 }
 ~~~
