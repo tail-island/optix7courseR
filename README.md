@@ -48,7 +48,7 @@ PowerShell上で、以下を実行してください。
 {
     "cmake.configureSettings": {
         "OptiX_INSTALL_DIR": "/opt/optix",
-        "//":  "Windowsの場合は\"C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.4.0\""
+        "//":  'Windowsの場合は"C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.4.0"'
     }
 }
 ~~~
