@@ -23,7 +23,7 @@ if (optixLaunchParams.frameId > 0) {
 
 あとは、Renderer.hに、カメラが移動した場合（あと、画像のサイズが変わった場合も）に`frameId_`を初期化する処理を追加するだけです。プログラムを実行して、最初はツブツブでチラチラな画像が段々となめらかになって、気がついたらとても綺麗な画像になっていれば作業は終了です。お疲れさまでした。
 
-![example11-accumulate-linux]()
+![example11-accumulate-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example11-accumulate-linux.png)
 
 ![example11-accumulate-windows]()
 
