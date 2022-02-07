@@ -288,6 +288,6 @@ extern "C" __global__ void __miss__radiance() {
 
 プログラムを実行して、どぎつい色の三角形で構成された3Dオブジェクトが表示されたら成功です。ぜひ、マウスでグリグリして3Dグラフィックスを堪能してください。お疲れさまでした。
 
-![example04-first-triangle-mesh-linux]()
+![example04-first-triangle-mesh-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example04-first-triangle-mesh-linux.png)
 
 ![example04-first-triangle-mesh-windows]()
