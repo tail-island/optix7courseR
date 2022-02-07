@@ -5,7 +5,8 @@
 # コース
 
 1. [example01-hello-optix](https://github.com/tail-island/optix7courseR/tree/main/example01-hello-optix) - 開発環境が正しく構築されたかの確認
-2. [example02-pipeline-and-raygen](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen) - OptiXを使用するための前準備
+1. [example02-pipeline-and-raygen](https://github.com/tail-island/optix7courseR/tree/main/example02-pipeline-and-raygen) - OptiXを使用するための前準備
+2. [example03-in-glfw-window](https://github.com/tail-island/optix7courseR/tree/main/example03-in-glfw-window) - 生成された画像をウィンドウ表示
 
 # 実行方法
 
