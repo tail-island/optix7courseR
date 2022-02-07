@@ -5,7 +5,7 @@
 # コース
 
 1. [example01-hello-optix](./tree/main/example01-hello-optix) - 開発環境が正しく構築されたかの確認
-2. [example02-pipeline-and-raygen]((./tree/main/example02-pipeline-and-raygen) - OptiXを使用するための前準備
+2. [example02-pipeline-and-raygen](./tree/main/example02-pipeline-and-raygen) - OptiXを使用するための前準備
 
 # 実行方法
 
