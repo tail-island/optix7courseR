@@ -1,6 +1,6 @@
 ![example11-accumulate-linux](https://raw.githubusercontent.com/tail-island/optix7courseR/main/image/example11-accumulate-linux.png)
 
-OptiXのチュートリアルとして有名な[optix7course](https://github.com/ingowald/optix7course)を、C++17（CUDAがまだC++20に対応していなかった……）で書き換えてみました。C++17や、あとCMake3.18が提供する機能の活用と、行列演算を独自ライブラリから[Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)に変更したことで、オリジナルよりもコードがシンプルになったと思います。
+OptiXのチュートリアルとして有名な[optix7course](https://github.com/ingowald/optix7course)を、C++17（CUDAがまだC++20に対応していなかった……）で書き換えてみました。C++17や、あとCMake3.18が提供する機能の活用と、行列演算を独自ライブラリから[Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)に変更したことで、元ネタよりもコードがシンプルになったと思います。
 
 # コース
 
