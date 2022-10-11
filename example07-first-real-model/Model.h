@@ -11,8 +11,34 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-namespace std {
-  inline auto operator<(const tinyobj::index_t &index1, const tinyobj::index_t &index2) {
+namespace osc {
+
+class Object final {
+  std::vector<Eigen::Vector3f> vertices_;
+  std::vector<Eigen::Vector3i> indices_;
+
+  Eigen::Vector3f color_;
+
+public:
+  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), indices_(indices), color_(diffuse) {
+    ;
+  }
+
+  const auto &getVertices() const noexcept {
+    return vertices_;
+  }
+
+  const auto &getIndices() const noexcept {
+    return indices_;
+  }
+
+  const auto &getColor() const noexcept {
+    return color_;
+  }
+};
+
+struct LessIndexT {
+  auto operator()(const tinyobj::index_t &index1, const tinyobj::index_t &index2) const noexcept {
     if (index1.vertex_index < index2.vertex_index) {
       return true;
     }
@@ -38,32 +64,6 @@ namespace std {
     }
 
     return false;
-  }
-}
-
-namespace osc {
-
-class Object final {
-  std::vector<Eigen::Vector3f> vertices_;
-  std::vector<Eigen::Vector3i> indices_;
-
-  Eigen::Vector3f color_;
-
-public:
-  Object(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &indices, const Eigen::Vector3f &diffuse) noexcept : vertices_(vertices), indices_(indices), color_(diffuse) {
-    ;
-  }
-
-  const auto &getVertices() const noexcept {
-    return vertices_;
-  }
-
-  const auto &getIndices() const noexcept {
-    return indices_;
-  }
-
-  const auto &getColor() const noexcept {
-    return color_;
   }
 };
 
@@ -99,7 +99,7 @@ public:
         auto materialIds = std::set(std::begin(shape.mesh.material_ids), std::end(shape.mesh.material_ids));
 
         for (const auto &materialId : materialIds) {
-          auto knownIndices = std::map<tinyobj::index_t, int>{};
+          auto knownIndices = std::map<tinyobj::index_t, int, LessIndexT>{};
 
           auto vertices = std::vector<Eigen::Vector3f>{};
           auto indices = std::vector<Eigen::Vector3i>{};

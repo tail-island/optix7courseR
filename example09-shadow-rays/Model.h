@@ -15,36 +15,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-namespace std {
-  inline auto operator<(const tinyobj::index_t &index1, const tinyobj::index_t &index2) {
-    if (index1.vertex_index < index2.vertex_index) {
-      return true;
-    }
-
-    if (index1.vertex_index > index2.vertex_index) {
-      return false;
-    }
-
-    if (index1.normal_index < index2.normal_index) {
-      return true;
-    }
-
-    if (index1.normal_index > index2.normal_index) {
-      return false;
-    }
-
-    if (index1.texcoord_index < index2.texcoord_index) {
-      return true;
-    }
-
-    if (index1.texcoord_index > index2.texcoord_index) {
-      return false;
-    }
-
-    return false;
-  }
-}
-
 namespace osc {
 
 class Texture final {
@@ -101,6 +71,36 @@ public:
 
   auto getTextureIndex() const noexcept {
     return textureIndex_;
+  }
+};
+
+struct LessIndexT {
+  auto operator()(const tinyobj::index_t &index1, const tinyobj::index_t &index2) const noexcept {
+    if (index1.vertex_index < index2.vertex_index) {
+      return true;
+    }
+
+    if (index1.vertex_index > index2.vertex_index) {
+      return false;
+    }
+
+    if (index1.normal_index < index2.normal_index) {
+      return true;
+    }
+
+    if (index1.normal_index > index2.normal_index) {
+      return false;
+    }
+
+    if (index1.texcoord_index < index2.texcoord_index) {
+      return true;
+    }
+
+    if (index1.texcoord_index > index2.texcoord_index) {
+      return false;
+    }
+
+    return false;
   }
 };
 
@@ -175,7 +175,7 @@ public:
         auto materialIds = std::set(std::begin(shape.mesh.material_ids), std::end(shape.mesh.material_ids));
 
         for (const auto &materialId : materialIds) {
-          auto knownIndices = std::map<tinyobj::index_t, int>{};
+          auto knownIndices = std::map<tinyobj::index_t, int, LessIndexT>{};
 
           auto vertices = std::vector<Eigen::Vector3f>{};
           auto normals = std::vector<Eigen::Vector3f>{};
